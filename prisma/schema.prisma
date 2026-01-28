@@ -1,0 +1,104 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db{
+    provider= "postgresql"
+    schemas = ["auth", "app"]
+}
+
+enum CoursCategory {
+  DEVELOPMENT
+  DESIGN
+  BUSINESS
+  MARKETING
+  DATA_SCIENCE
+  IT_SOFTWARE
+  PERSONAL_DEVELOPMENT
+  PHOTOGRAPHY
+  MUSIC
+  LANGUAGE
+  HEALTH_FITNESS
+  FINANCE
+  LIFESTYLE
+  TEACHING
+  @@schema("app")
+}
+
+enum StaffRoles {
+    OWNER
+    ADMIN
+    VIEWER
+    TEST
+    @@schema("app")
+}
+
+
+model StaffProfile {
+    id String @id @default(uuid())
+    name String 
+    email String @unique
+    createdAt DateTime @default(now())
+    role StaffRoles @default(VIEWER)
+    userId String @unique
+
+    InvitationSent StaffInvitation[] @relation("InvitedBy")
+
+    @@schema("app")
+    @@index([role])
+    @@index([name])
+    @@map("staff_profile")
+}
+
+model StaffInvitation {
+    id String @id @default(uuid())
+    email String @unique
+    role StaffRoles @default(VIEWER)
+    tokenHash String @unique
+    createdAt DateTime
+    acceptedAt DateTime
+    revokeAt DateTime
+    expiredAt DateTime
+    acceptedByUserId String? @unique
+
+    invitedById String
+    InvitedBy StaffProfile @relation("InvitedBy", fields: [invitedById], references: [id], onDelete: Restrict)
+    @@schema("app")
+
+}
+
+model Cours {
+    id String @id @default(uuid())
+    title String 
+    slug String @unique
+    description String?
+    price Decimal
+    createdByAuthUserId String?
+    category CoursCategory?
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@map("app")
+    @@schema("app")
+    @@index([title])
+    @@index([price])
+
+}
+
+
+
+model AuditLog {
+  id              String   @id @default(uuid())
+  action          String
+  actorAuthUserId String?
+  entityType      String?
+  entityId        String?
+  metadata        Json?
+  createdAt       DateTime @default(now())
+
+  @@schema("app")
+  @@map("audit_log")
+  @@index([action])
+  @@index([actorAuthUserId])
+  @@index([createdAt])
+}
