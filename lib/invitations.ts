@@ -44,7 +44,7 @@ export async function createInvitation(email: string , role : StaffRoles){
 export class InvitationAcceptanceError extends Error {}
 
 
-async function acceptInvitation (token : string){
+export async function acceptInvitation (token : string){
     const session = await getSession()
     const email = session?.user.email
     const userId = session?.user.id
@@ -65,19 +65,19 @@ async function acceptInvitation (token : string){
     
      if (searchInvitation.email !== email) throw new InvitationAcceptanceError()
     
-    const createStaff = prisma.staffProfile.create({
+    await prisma.staffProfile.create({
         data: {
         role:searchInvitation.role , userId : session.user.id
         }
     })
 
 
-    const InvitationAccepted = prisma.StaffInvitation.update({
+    await prisma.StaffInvitation.update({
         where : { ID :searchInvitation.id},
         data : {
             acceptedAt: now,
             AccptedBy: session.user.id
         }
     })
-    return staff
+    return true
 }
