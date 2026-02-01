@@ -8,7 +8,8 @@ export default async function acceptanceAction(token:string){
     try{
     await acceptInvitation(token)
         return {ok:true}
-    }catch {
-        return {ok:false, message: "[servAction] Impossible d'envoyez les données."}
+    }catch(err: any) {
+        console.error("[servAction] Impossible d'envoyez les données.")
+        return {ok:false, message: err.message}
     }
 }

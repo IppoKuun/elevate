@@ -41,15 +41,13 @@ export async function createInvitation(email: string , role : StaffRoles){
     return {token, inviteUrl, invitationQueryId : invitationQuery.id}
 }
 
-export class InvitationAcceptanceError extends Error {}
-
 
 export async function acceptInvitation (token : string){
     const session = await getSession()
     const email = session?.user.email
     const userId = session?.user.id
 
-    if (!email || !token || token.length < 10 ) throw new InvitationAcceptanceError()
+    if (!email || !token || token.length < 10 ) throw new classError.FatalError()
     
     const tokenHash = sha256(token)
     const now = Date.now()

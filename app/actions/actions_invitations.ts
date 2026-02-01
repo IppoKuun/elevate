@@ -27,6 +27,6 @@ export async function inviteStaffAction (prevState: unknow, formData : FormData)
         return {ok:true, token :result.token, email, role, inviteUrl: result.inviteUrl };
     }catch (err : any){
     console.error(err instanceof Error ?err.message : "erreur server")
-    return { ok: false, userMsg: err.message, session }
+    return { ok: false, userMsg: err.message }
     }
 }

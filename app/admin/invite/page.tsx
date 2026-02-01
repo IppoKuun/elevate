@@ -7,7 +7,7 @@ import { TriangleAlert } from "lucide-react"
 
 
 type servActionResult = {ok: false; userMsg: string} |
-{ok: true; invitedUrl: string; token: string};
+{ok: true; inviteUrl: string; token: string};
   
 
 const initialResult = {ok: false, userMsg:""}
@@ -29,11 +29,16 @@ export default function inviteStaffPage(){
 
   async function copiedUrl() {
     if (result.ok){
-          await navigator.clipboard.writeText(result.invitedUrl)
+          await navigator.clipboard.writeText(result.inviteUrl)
           setTimeout(()=> {setCopied(true)}, 2000)
           setCopied(false)
     }
   }
+
+  useEffect(() => {
+  if (result.ok) setOpen(true);
+}, [result]);
+
   
 
   return(
@@ -77,30 +82,41 @@ export default function inviteStaffPage(){
         </div>
         <p>Le lien valable pendant 3 jour par mesure de sécurité.</p>
 
-        <button className="w-full text-2xl font-bold mt-30">Envoyez</button>
+        <button className="w-full text-2xl font-bold mt-30">{pending ? "Envoie en cours...": "Envoyez"}</button>
       </form>
 
-      {result.ok &&(
+      {result.ok && (
         <Transition show={open}>
-          <Dialog onClose={() => setOpen(false)}>
-          
-          <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+          <Dialog onClose={() => setOpen(false)} className="relative z-50">
 
-          <div className="">
-            
-          </div>
-            <Dialog.Panel>
-              <Dialog.Title>Invitation Créer</Dialog.Title>
-                <Dialog.Description>Veuillez copier le lien ci-dessous </Dialog.Description>
-                <div className="flex flex-row">
+            {/* Backdrop */}
+            <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+
+            {/* Conteneur centré */}
+            <div className="fixed inset-0 flex items-center justify-center p-4">
+
+              <Dialog.Panel className="bg-white rounded-xl p-6 shadow-xl max-w-md w-full">
+                <Dialog.Title className="text-lg font-semibold">
+                  Invitation Créée
+                </Dialog.Title>
+
+                <Dialog.Description className="text-sm text-slate-600 mt-1">
+                  Veuillez copier le lien ci-dessous
+                </Dialog.Description>
+                    <code>{result.inviteUrl}</code>
+                <div className="flex flex-row gap-2 mt-4">
                   <TriangleAlert />
-                  <p className="">Attention, ce lien est <strong>secret.</strong>
-                    Vous devez partagé le lien uniquement a la personne dédiée car il contient le <strong>token d'invitation</strong></p>
+                  <p className="text-sm text-slate-700">
+                    Attention, ce lien est <strong>secret.</strong> Vous devez le partager uniquement à la personne dédiée car il contient le <strong>token d'invitation</strong>.
+                  </p>
                 </div>
-            </Dialog.Panel>
-          </Dialog>
-        </Transition>
-      )}
+              </Dialog.Panel>
+
+      </div>
+    </Dialog>
+  </Transition>
+)}
+  
     </div>
   )
 }
