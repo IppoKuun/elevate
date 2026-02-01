@@ -1,7 +1,10 @@
 "use client"
 import { inviteStaffAction } from "@/app/actions/actions_invitations" 
 import { useActionState, useState, Fragment } from "react"
-import { Listbox, Transition } from "@headlessui/react"
+import { Listbox, Transition, Dialog } from "@headlessui/react"
+import { TriangleAlert } from "lucide-react"
+
+
 
 type servActionResult = {ok: false; error?: Record<string, string[]>} |
 {ok: true; invitedUrl: string; token: string};
@@ -10,7 +13,8 @@ type servActionResult = {ok: false; error?: Record<string, string[]>} |
 const initialResult = {ok: false}
 
 
-export default async function inviteStaffPage(){
+export default function inviteStaffPage(){
+  const [open, setOpen] = useState(false)
   const [copied, setCopied] = useState(false)
   const [result, formAction, pending] = useActionState(inviteStaffAction, initialResult)
   const roles = ["ADMIN", "VIEWER"]
@@ -26,13 +30,13 @@ export default async function inviteStaffPage(){
 
   return(
     <div className="min-h-screen flex flex-col justify-center items-center">
-      <form action={inviteStaffAction} 
+      <form action={formAction} 
       className="bg-white h-135 flex flex-col items-center  rounded shadow max-w-150 w-full px-4 "
       >
-        <h1 className="mt-5 text-3xl font-bold">Invitez des membres</h1>
+        <h1 className="mt-5 text-3xl font-bold">Invitez un membres</h1>
         <div className="self-start mt-15 w-full">
-          <label >Email</label>
-          <input placeholder="email@outlook.com" ></input>
+          <label>Email</label>
+          <input required type="email"placeholder="email@outlook.com" ></input>
         </div>
         
         <div className="self-start mt-15 w-full">
@@ -62,6 +66,28 @@ export default async function inviteStaffPage(){
 
         <button className="w-full text-2xl font-bold mt-30">Envoyez</button>
       </form>
+
+      {result.ok &&(
+        <Transition show={setOpen}>
+          <Dialog onClose={() => setOpen(false)}>
+          
+          <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+
+          <div className="">
+            
+          </div>
+            <Dialog.Panel>
+              <Dialog.Title>Invitation Créer</Dialog.Title>
+                <Dialog.Description>Veuillez copier le lien ci-dessous </Dialog.Description>
+                <div className="flex flex-row">
+                  <TriangleAlert />
+                  <p className="">Attention, ce lien est <strong>secret.</strong>
+                    Vous devez partagé le lien uniquement a la personne dédiée car il contient le <strong>token d'invitation</strong></p>
+                </div>
+            </Dialog.Panel>
+          </Dialog>
+        </Transition>
+      )}
     </div>
   )
 }
