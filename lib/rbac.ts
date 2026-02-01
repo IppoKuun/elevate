@@ -23,8 +23,8 @@ export async function getStaffProfile() {
     const session = await getSession()
     const id = session?.user.id 
 
-    const staff = await prisma.staff_profile.findUnique({
-        where: {userID : id}
+    const staff = await prisma.staffProfile.findUnique({
+        where: {userId : id}
     })
     return staff
 }
@@ -36,7 +36,7 @@ export async function isStaff(){
 export async function requireStaff(){
     const session = await getSession() 
     if (!session) throw new classError.AuthRequiredError("NON CONNECTER")
-    const {staff } = await getStaffProfile()
+    const  staff  = await getStaffProfile()
     if (!staff) throw new classError.ForbiddenError("ACCES REFUSE")
     return {session, staff}
 }

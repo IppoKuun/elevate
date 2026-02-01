@@ -1,16 +1,16 @@
 "use client"
 import { inviteStaffAction } from "@/app/actions/actions_invitations" 
-import { useActionState, useState, Fragment } from "react"
+import { useActionState, useEffect, useState, Fragment } from "react"
 import { Listbox, Transition, Dialog } from "@headlessui/react"
 import { TriangleAlert } from "lucide-react"
 
 
 
-type servActionResult = {ok: false; error?: Record<string, string[]>} |
+type servActionResult = {ok: false; userMsg: string} |
 {ok: true; invitedUrl: string; token: string};
   
 
-const initialResult = {ok: false}
+const initialResult = {ok: false, userMsg:""}
 
 
 export default function inviteStaffPage(){
@@ -19,6 +19,13 @@ export default function inviteStaffPage(){
   const [result, formAction, pending] = useActionState(inviteStaffAction, initialResult)
   const roles = ["ADMIN", "VIEWER"]
   const [selectedRole, setSelectedRole] = useState(roles[0])
+  const [errorKey, setErrorKey] = useState(0);
+  const [email, setEmail] = useState("");
+
+
+  useEffect(() => {
+  if (!result.ok && result.userMsg) setErrorKey((k) => k + 1);
+}, [result]);
 
   async function copiedUrl() {
     if (result.ok){
@@ -27,16 +34,22 @@ export default function inviteStaffPage(){
           setCopied(false)
     }
   }
+  
 
   return(
     <div className="min-h-screen flex flex-col justify-center items-center">
+      {!result.ok && result.userMsg && (
+        <div key={errorKey}  className="div_err flash">
+          {result.userMsg}
+        </div>
+      )}
       <form action={formAction} 
       className="bg-white h-135 flex flex-col items-center  rounded shadow max-w-150 w-full px-4 "
       >
         <h1 className="mt-5 text-3xl font-bold">Invitez un membres</h1>
         <div className="self-start mt-15 w-full">
           <label>Email</label>
-          <input required type="email"placeholder="email@outlook.com" ></input>
+          <input name="email" required type="email"placeholder="email@outlook.com" ></input>
         </div>
         
         <div className="self-start mt-15 w-full">
@@ -68,7 +81,7 @@ export default function inviteStaffPage(){
       </form>
 
       {result.ok &&(
-        <Transition show={setOpen}>
+        <Transition show={open}>
           <Dialog onClose={() => setOpen(false)}>
           
           <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
