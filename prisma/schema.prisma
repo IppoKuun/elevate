@@ -56,10 +56,11 @@ model StaffInvitation {
     role StaffRoles @default(VIEWER)
     tokenHash String @unique
     createdAt DateTime
-    acceptedAt DateTime
-    revokeAt DateTime
+    acceptedAt DateTime?
+    revokeAt DateTime?
     expiredAt DateTime
     acceptedByUserId String? @unique
+
 
     invitedById String
     InvitedBy StaffProfile @relation("InvitedBy", fields: [invitedById], references: [id], onDelete: Restrict)

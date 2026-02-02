@@ -2,7 +2,6 @@
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { prisma } from "@/lib/db/prisma";
 import { AcceptForm } from "../../actions/components/AcceptanceForm";
 
 export default async function InvitePage({ searchParams }: { searchParams: Promise<{ token?: string }> }) {
@@ -11,7 +10,7 @@ export default async function InvitePage({ searchParams }: { searchParams: Promi
     // 1. Check de la session (Côté SERVEUR)
     const session = await auth.api.getSession({ headers: await headers() });
     if (!session) {
-        redirect(`/admin/login?callbackURL=/invite?token=${token}`);
+        redirect(`/admin/login?callbackURL=/admin/acceptance?token=${token}`);
     }
 
 

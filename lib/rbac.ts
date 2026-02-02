@@ -1,8 +1,7 @@
 import "server-only"
 import getSession from "./session"
 import { prisma } from "./db/prisma"
-import * as classError from "./error"
-
+import AppError from "./error"
 type StaffRole = "OWNER" | "ADMIN" | "VIEWER" | "TEST"
 
 const ROLE_RANK: Record<StaffRole, Number> = {
@@ -35,14 +34,14 @@ export async function isStaff(){
 
 export async function requireStaff(){
     const session = await getSession() 
-    if (!session) throw new classError.AuthRequiredError("NON CONNECTER")
+    if (!session) throw new AppError("NON CONNECTER")
     const  staff  = await getStaffProfile()
-    if (!staff) throw new classError.ForbiddenError("ACCES REFUSE")
+    if (!staff) throw new AppError("ACCES REFUSE")
     return {session, staff}
 }
 
 export async function requireStaffRole(minRoles : StaffRole){
     const {staff, session} = await requireStaff()
-    if (!haveRight(staff.role, minRoles)) throw new classError.ForbiddenError(" VOUS NE DISPOSEZ DU ROLE NECESSAIRE POUR CETTE ACTION")
+    if (!haveRight(staff.role, minRoles)) throw new AppError(" VOUS NE DISPOSEZ DU ROLE NECESSAIRE POUR CETTE ACTION")
     return {staff, session}
 }

@@ -1,18 +1,21 @@
 "use server"
-import { FatalError } from "@/lib/error"
+import { AppError } from "@/lib/error"
 import { acceptInvitation } from "@/lib/invitations"
 
-export default async function acceptanceAction(prevState: unknown, formData: FormData){
-    if(!token) throw new FatalError("LE LIEN N'AS PAS DE TOKEN, MERCI DE VOUS CONNECTEZ AVEC LE LIEN QU'ON VOUS A FOURNIS")
-    
+export default async function acceptanceAction(prevState: unknown, formData: FormData) {
+  try {
     const token = formData.get("token");
-
-    try{
-    await acceptInvitation(token)
-        return {ok:true}
-    }catch(err: any) {
-        const message = err instanceof Error
-        console.error("[servAction] Impossible d'envoyez les données.")
-        return {ok:false, userMsg: err.message}
+    if (typeof token !== "string" || !token) {
+      return { ok: false, userMsg: "Lien invalide ou Token manquant." }; // pas de throw ici
     }
+
+    await acceptInvitation(token);
+    return { ok: true };
+  } catch (err: any) {
+    console.error("[servAction] acceptance error", err);
+    if (err instanceof AppError) {
+      return { ok: false, userMsg: err.message };
+    }
+    return { ok: false, userMsg:"Erreur serveur." };
+  }
 }
