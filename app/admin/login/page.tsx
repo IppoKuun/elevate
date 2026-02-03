@@ -1,13 +1,16 @@
 "use client"
+import { useSearchParams } from "next/navigation";
 import { authClient } from "@/lib/auth-client"
 import Image from "next/image";
 
 export default function Login(){
+    const params = useSearchParams();
+    const callbackURL = params.get("callbackURL") ?? "/admin/dashboard";
     const handleLogin = async() => {
         try {
             await authClient.signIn.social({
             provider: "microsoft",
-            callbackURL:"/admin/dashboard"
+            callbackURL
         })
         } catch (err) {
     console.error(err);

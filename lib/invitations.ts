@@ -32,7 +32,7 @@ export async function createInvitation(email: string , role : StaffRoles){
     const invitationQuery = await prisma.staffInvitation.create({
         data:{
         email : targetEmail, role, tokenHash, createdAt : now,
-        expiredAt, invitedById : session.user.id
+        expiredAt, invitedById : staff.id
     }
     })
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
@@ -52,31 +52,32 @@ export async function acceptInvitation (token : string){
     const tokenHash = sha256(token)
     const now = new Date();
 
-    const searchInvitation = await prisma.staffInvitation.findUnique({
-        where: {tokenHash}
-    })
-
-
-    if (!searchInvitation || searchInvitation.revokeAt 
-        || now > searchInvitation.expiredAt || searchInvitation.acceptedAt 
-     ) throw new Error("Lien inexistant, expiré, déjà accepeté ou annulé")
+    return prisma.$transaction(async (tx) => {
+        const searchInvitation = await tx.staffInvitation.findUnique({
+            where: {tokenHash}
+        })
     
-     if (searchInvitation.email !== email) 
-        throw new Error(`Votre email : ${email} et l'email utilisé pour l'invitation ne corresponde pas. Connectez vous dans un autre naviguateur ou demandé aux admins si le liens d'invitations est bien similaires.`)
+        if (!searchInvitation || searchInvitation.revokeAt 
+            || now > searchInvitation.expiredAt || searchInvitation.acceptedAt 
+         ) throw new AppError("Lien inexistant, expiré, déjà accepeté ou annulé")
+        
+         if (searchInvitation.email !== email) 
+            throw new AppError(`Votre email : ${email} et l'email utilisé pour l'invitation ne corresponde pas. Connectez vous dans un autre naviguateur ou demandé aux admins si le liens d'invitations est bien similaires.`)
+        
+        await tx.staffProfile.create({
+            data: {
+            role:searchInvitation.role , userId : session.user.id, email, name: session.user.name ?? ""
+            }
+        })
     
-    await prisma.staffProfile.create({
-        data: {
-        role:searchInvitation.role , userId : session.user.id
-        }
+    
+        await tx.staffInvitation.update({
+            where : { id :searchInvitation.id},
+            data : {
+                acceptedAt: now,
+                acceptedByUserId: session.user.id
+            }
+        })
+        return true
     })
-
-
-    await prisma.staffInvitation.update({
-        where : { id :searchInvitation.id},
-        data : {
-            acceptedAt: now,
-            AcceptedByUserId: session.user.id
-        }
-    })
-    return true
 }

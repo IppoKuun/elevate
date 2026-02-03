@@ -1,5 +1,5 @@
 "use server"
-import { AppError } from "@/lib/error"
+import  AppError  from "@/lib/error"
 import { acceptInvitation } from "@/lib/invitations"
 
 export default async function acceptanceAction(prevState: unknown, formData: FormData) {
