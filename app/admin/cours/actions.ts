@@ -2,7 +2,6 @@ import { prisma } from "@/lib/db/prisma";
 import { requireStaffRole } from "@/lib/rbac";
 import { slugify, updateCourseSchema } from "@/lib/validations";
 import { CourSchema } from "@/lib/validations";
-import { object } from "better-auth";
 import { revalidatePath } from "next/cache";
 
 export async function generateUniqueSlug(title: string, id?:string){
@@ -11,7 +10,7 @@ export async function generateUniqueSlug(title: string, id?:string){
     let compteur = 1
 
     while(true){
-        const find = await prisma.cours.findUnique({
+        const find = await prisma.cours.findFirst({
             where: {
             slug : uniqueSlug,
             id: {not: id}
@@ -22,33 +21,36 @@ export async function generateUniqueSlug(title: string, id?:string){
     }
 }
 
-export async function createCoursAction(prevData: unknow, formData: FormData){
+export async function createCoursAction(prevData: unknown, formData: FormData){
     await requireStaffRole("ADMIN")
     const raw = Object.fromEntries(formData.entries())
     const parsed = CourSchema.safeParse({
+        ...raw,
         priceCents: Number(raw.priceCents),
         isPaid : raw.isPaid === "on"
     })
     if (!parsed.success) return {
-        ok:false, userMsg: "Erreur, impossible de créer le cours", error : parsed.error.flatten().fieldErrors;
+        ok:false, userMsg: "Erreur, impossible de créer le cours", error : parsed.error.flatten().fieldErrors
     }
-    let finalSlug = generateUniqueSlug(parsed.data.title)
+    let finalSlug = await generateUniqueSlug(parsed.data.title)
 
     const create = await prisma.cours.create({
         data : {...parsed.data, slug : finalSlug},  
     });
     if (!create) return {ok:false, userMsg :" Impossible de créer le cours" }
-    return {ok:true}
 
     revalidatePath("/admin/cours")
+    return {ok:true}
+
     
 }
 
 
-export async function updateCourseAction(prevData:unknow, formData: FormData){
+export async function updateCourseAction(prevData:unknown, formData: FormData){
     await requireStaffRole("ADMIN")
     const raw = Object.fromEntries(formData.entries())
     const parsed = updateCourseSchema.safeParse({
+        ...raw,
         priceCents: Number(raw.priceCents),
         isPaid : raw.isPaid === "on"
     })
@@ -57,12 +59,13 @@ export async function updateCourseAction(prevData:unknow, formData: FormData){
 
     const {id, ...updateData} = parsed.data
 
-    if (updateData.title !== prevData.title){
-        const updateData.slug = await generateUniqueSlug(updateData.title, id)
+    let newSlug = undefined
+    if (updateData.title){
+          newSlug = await generateUniqueSlug(updateData.title, id)
     }
 
     const updated = await prisma.cours.update({
-        where: {id} , data: updateData
+        where: {id} , data: {...updateData, slug: newSlug}
     })
     if (!updated) return{
         ok:false, userMsg: "Impossible d'enregistrer dans la base de données la modifications"

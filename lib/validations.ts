@@ -29,10 +29,9 @@ export const CourSchema = z.object({
     .trim()
     .max(2000, "Description trop longue 2000 max")
     .optional().or(z.literal("")),
-
     priceCents: priceCentsSchema,
-
-    isPaid: z.boolean().default(false)
+    isPaid: z.boolean().default(false),
+    thumbnailUrl: z.string().url().optional().or(z.literal("")),
 
 })
 
@@ -43,4 +42,4 @@ export const updateCourseSchema = CourSchema.partial().extend({
     id : z.string().uuid("ID Invalide")
 })
 
-export type zodUpdateCourse = z.infer<typeof UpdateCourseSchema>
+export type zodUpdateCourse = z.infer<typeof updateCourseSchema>
