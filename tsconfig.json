@@ -29,6 +29,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-, "test.prisma", "app/admin/newCours"  ],
+, "test.prisma", "app/admin/cours"  ],
   "exclude": ["node_modules"]
 }

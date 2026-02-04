@@ -2,7 +2,7 @@
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { AcceptForm } from "../../actions/components/AcceptanceForm";
+import { AcceptForm } from "../../components/AcceptanceForm";
 import { prisma } from "@/lib/db/prisma";
 
 export default async function InvitePage({ searchParams }: { searchParams: Promise<{ token?: string }> }) {
