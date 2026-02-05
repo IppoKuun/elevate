@@ -1,9 +1,9 @@
 import { prisma } from "@/lib/db/prisma"
-import { getStaffProfile, requireStaffRole } from "@/lib/rbac"
+import {requireStaffRole } from "@/lib/rbac"
+import { CoursManager } from "./_components/CoursManager"
 
 export default async function Cours(){
-    await requireStaffRole("ADMIN")
-    const {staff} = await getStaffProfile()
+    const {staff } = await requireStaffRole("ADMIN")
  
     const canEdit = staff.role === "ADMIN" || staff.role === "OWNER" 
 
@@ -12,8 +12,8 @@ export default async function Cours(){
     })
 
     return(
-        <main className="">
-            <CoursManager initialCours={initialCours}  canEdit={canEdit}/>
+        <main>
+            <CoursManager initialCours={initialCours} canEdit={canEdit}/>
         </main>
     )
 }
