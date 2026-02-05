@@ -3,24 +3,48 @@ import { useState } from "react"
 import { toast } from "sonner" 
 import { deleteCoursAction } from "../actions"
 import { Pencil, Trash } from "lucide-react"
+import { usePathname, useSearchParams } from "next/navigation"
+import { useRouter } from "next/router"
 
 
 interface CoursManagerProps {
     initialCours :any[],
     canEdit: boolean,
-
+    totalPage: Number
 }
  
-export function CoursManager({initialCours, canEdit}: CoursManagerProps){
+export function CoursManager({initialCours, canEdit, totalPage}: CoursManagerProps){
     const [courseToDelete, setCourseToDelete] = useState(null)
     const [isFormopen, setIsFormOpen] = useState(false)
     const [coursToEdit, setCoursToEdit] = useState(null)
+
+    const router = useRouter()
+    const searchParam = useSearchParams()
+    const pathname = usePathname()
+
+    function updateUrl(key: string, value: string ){
+        const params = new URLSearchParams(searchParam.toString())
+
+        if (value){
+            params.set( key, value)
+        } else {
+            params.delete(key)
+        }
+
+        if(key !== "page" ){
+            params.set("page", "1")
+        }
+
+        router.push(`${pathname}?${params.toString()}`)
+    }
+
+    
 
     const openDeleteModale = (cours: any) => setCourseToDelete(cours);
 
     async function handleConfirmDelete(id: string){
         if (!courseToDelete) return;
-        const actionDelete = await deleteCoursAction(id)
+        const actionDelete = await deleteCoursAction(id)    
         if (actionDelete){
             toast.success("Cours supprimé avec succès")
             setCourseToDelete(null)
@@ -69,7 +93,7 @@ export function CoursManager({initialCours, canEdit}: CoursManagerProps){
                                 {canEdit && (
                                     <>
                                         <Pencil onClick={()=> handleEdit(cours)}></Pencil>
-                                        <Trash onClick={() => setCourseToDelete(cours)}></Trash>
+                                        <Trash onClick={() => openDeleteModale(cours)}></Trash>
                                     </>
                                 )}
                             </tr>

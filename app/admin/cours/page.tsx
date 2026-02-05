@@ -19,7 +19,8 @@ export default async function Cours({searchParams} : PageProps) {
     const currentPage = params.page || 1
     const type = params.type
     const coursPerPage = 10
- 
+    const sortOrder = params.sort === "asc" ? "asc" : "desc";
+
     const where = {}
 
     if(query){
@@ -34,7 +35,7 @@ export default async function Cours({searchParams} : PageProps) {
         prisma.cours.findMany({
             where,
             skip: (currentPage - 1)* coursPerPage,
-            take: coursPerPage
+            take: coursPerPage, orderBy : {createdAt: sortOrder}
         }),
 
         prisma.cours.count({where})

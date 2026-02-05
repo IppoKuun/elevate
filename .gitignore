@@ -24,6 +24,9 @@ redis_data/
 # production
 /build
 
+*.consigne.txt
+*consigne.txt
+
 # misc
 .DS_Store
 *.pem

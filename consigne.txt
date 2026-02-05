@@ -1,13 +1,32 @@
-prendre l'url, prendre son query, son type, et sa page ( si y'en a pas c 1)
+ont type les props
 
-on construit le filtre prisma un obj vide
+ ont fait une fonction avec clé valeur en param. On créer un OBJ qui vas 
+ pouvoir nous permettre de modifié ce param. Si on a une valeur, 
+ on implémente dans l'URL la clé et la valeur, sinon ont supprime la clé de
+  l'URL, si la clé est différente de page ont doit remettre la page a 0 car
+   les datas ont surement reset. Ensuite ont envoie user a notre chemin 
+   (l'url source) + ont implémente les parametres en convertissant en str
+    pour que ça puisse etre considéré comme une vrai URL car new 
+    URLSearchParams est un obj.
 
-ont fait un filtre basé sur query et notre filtre prisma vas devenir un filtre sur le titre quii sera : { contains: query, mode: "insensitive" };
 
 
+Pour la fonction recherche. Ont prends ce que user a mis et ont
+ l'envoie a la fonction pour créer un nvl URL qui vas prendre et ont dit 
+ que q et la clé et plain sa valeur. Ont fait un timeout de 300 ms pour 
+ laisser le temps de mettre tout le text..
 
-On fait 2 requete en mm temps, une pour les cours filtré et l'autre pour jsp. 
-Ensuite ont calcule le tt de page en arrondissant et on passe en props le tt de page + la page actuelle
+Pour les params qui change ont fait en sorte que la valeur par
+défault sois celle après qu'on est chercher dans l'URL sa valeur
+ ( en convertissant en str)
 
+Pour la pagination. Si le total des pages est sup a 1 le btn precedent 
+est désactivé
+mais si ont clique ça va changer l'url, avec page comme vlé et comme 
+valeur la page
+actu -1
 
+Un ptit visu de notre page actuelle et le tt de pages.
 
+autre bouton mm logique sauf que intouchable quand notre page actuellee est
+ sup aux nbr tt de page.
