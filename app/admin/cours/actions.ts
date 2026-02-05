@@ -1,3 +1,4 @@
+"use server"
 import { prisma } from "@/lib/db/prisma";
 import { requireStaffRole } from "@/lib/rbac";
 import { slugify, updateCourseSchema } from "@/lib/validations";
@@ -38,9 +39,10 @@ export async function createCoursAction(prevData: unknown, formData: FormData){
         data : {...parsed.data, slug : finalSlug},  
     });
     if (!create) return {ok:false, userMsg :" Impossible de créer le cours" }
-
     revalidatePath("/admin/cours")
+
     return {ok:true}
+
 
     
 }
@@ -74,8 +76,12 @@ export async function updateCourseAction(prevData:unknown, formData: FormData){
 }
 
 export async function deleteCoursAction(id: string){
+      await requireStaffRole("ADMIN");
     const deleted = await prisma.cours.delete({
         where: {id}
     })
+    
     if (!deleted) return {ok:false, userMsg:"Impossible d'enregistrer la suppression dans la base de données."}
+            return {ok: true}
+
 }

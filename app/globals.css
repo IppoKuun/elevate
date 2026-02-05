@@ -49,4 +49,5 @@ body {
 @layer components {
   .div_err {@apply bg-red-500 text-2xl w-120 mb-3 rounded-xl font-extrabold shadow text-white text-center p-4}
   .div_err.flash {animation: flashShake 400ms ease-out;}
+  .main_noStyle:not(.no-style) {@apply min-h-screen flex flex-col justify-center items-center }
 }

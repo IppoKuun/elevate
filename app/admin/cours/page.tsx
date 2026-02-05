@@ -12,8 +12,8 @@ export default async function Cours(){
     })
 
     return(
-        <main>
+        <>
             <CoursManager initialCours={initialCours} canEdit={canEdit}/>
-        </main>
+        </>
     )
 }
