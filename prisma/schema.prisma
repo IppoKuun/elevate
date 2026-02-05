@@ -43,12 +43,12 @@ model Cours {
   title               String
   slug                String         @unique
   description         String?
-  price               Decimal
+  price               Decimal?
   createdByAuthUserId String?
   category            CoursCategory?
   createdAt           DateTime       @default(now())
   updatedAt           DateTime       @updatedAt
-
+  isPaid              Boolean?
   @@index([title])
   @@index([price])
   @@map("cours")

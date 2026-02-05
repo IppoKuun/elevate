@@ -1,0 +1,13 @@
+prendre l'url, prendre son query, son type, et sa page ( si y'en a pas c 1)
+
+on construit le filtre prisma un obj vide
+
+ont fait un filtre basé sur query et notre filtre prisma vas devenir un filtre sur le titre quii sera : { contains: query, mode: "insensitive" };
+
+
+
+On fait 2 requete en mm temps, une pour les cours filtré et l'autre pour jsp. 
+Ensuite ont calcule le tt de page en arrondissant et on passe en props le tt de page + la page actuelle
+
+
+

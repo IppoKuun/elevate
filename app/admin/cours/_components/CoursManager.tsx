@@ -7,7 +7,8 @@ import { Pencil, Trash } from "lucide-react"
 
 interface CoursManagerProps {
     initialCours :any[],
-    canEdit: boolean
+    canEdit: boolean,
+
 }
  
 export function CoursManager({initialCours, canEdit}: CoursManagerProps){
