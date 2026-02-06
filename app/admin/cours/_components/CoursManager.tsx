@@ -78,7 +78,8 @@ export function CoursManager({initialCours, canEdit, totalPage, currentPage}: Co
             )}
 
             
-            <div className="overflow-x-auto mt-50 w-full rounded flex flex-col justify-center items-center shadow border">
+            <div className="overflow-x-auto mt-50 w-full rounded flex flex-col justify-center 
+            items-center shadow border">
                 <div className="flex flex-row justify-between p-6">
                     <div className="relative border border-slate-300 focus-within:border-slate-700 flex items-center w-full h-10 rounded-xl ">
                         <Search className="absolute" color="gray"/>
@@ -144,7 +145,7 @@ export function CoursManager({initialCours, canEdit, totalPage, currentPage}: Co
                 </div>
             </div>
 
-            <CoursModale isOpen={isFormopen} onClose={() => setIsFormOpen(false)} />
+            <CoursModale isOpen={isFormopen} courseToEdit={} onClose={() => setIsFormOpen(false)} />
         </section>  
     )
 }
