@@ -5,7 +5,7 @@ import { deleteCoursAction } from "../actions"
 import { Filter, Pencil, Search, Trash, ChevronLeft, ChevronRight } from "lucide-react"
 import { usePathname, useSearchParams } from "next/navigation"
 import { useRouter } from "next/navigation"
-
+import CoursModale from "./coursModale"
 
 interface CoursManagerProps {
     initialCours :any[],
@@ -74,22 +74,22 @@ export function CoursManager({initialCours, canEdit, totalPage, currentPage}: Co
             {canEdit && (
             <button 
             onClick={handleCreate}
-            className="w-30 h-10 flex justify-center items-center top-0 absolute ml-335 text-center">+ Nouveau</button>
+            className="buttonForm top-5 absolute ml-335 w-30 text-center">+ Nouveau</button>
             )}
 
             
-            <div className="overflow-x-auto mt-50 w-full rounded shadow border">
+            <div className="overflow-x-auto mt-50 w-full rounded flex flex-col justify-center items-center shadow border">
                 <div className="flex flex-row justify-between p-6">
-                    <div className="relative border border-slate-300 focus-within:border-slate-700 flex items-center w-ful h-10  rounded ">
+                    <div className="relative border border-slate-300 focus-within:border-slate-700 flex items-center w-full h-10 rounded-xl ">
                         <Search className="absolute" color="gray"/>
                         <input
                         placeholder="Rechercher"
                         defaultValue={searchParam.get("q")?.toString()}
-                        onChange={()=> handleQuery("q")}
+                        onChange={(e)=> handleQuery(e.target.value)}
                         className="w-65 border-none ml-7 outline-none focus:ring-0 ">
                         </input>
                     </div>
-                    <select className="border"  onChange={() => updateUrl("type", )}  className="">
+                    <select className="border"  onChange={(e) => updateUrl("type", e.target.value )} >
                         <Filter />
                         <option className="">Tous</option>
                         <option value={"isPaid"} className="">Payant</option>
@@ -127,21 +127,24 @@ export function CoursManager({initialCours, canEdit, totalPage, currentPage}: Co
                         ))}
                     </tbody>
                 </table>
-                <div className="flex flex-row justify-center mt-10">
-                        <ChevronLeft disabled={currentPage <= 1} size={35}
-                         onClick={()=> updateUrl("page", String(currentPage-1) )} className="cursor-pointer" >
+                <div className="flex flex-row gap-5 justify-center w-100 items-center mt-10">
+                        <button disabled={Number(currentPage) <= 1} 
+                         onClick={()=> updateUrl("page", String(Number(currentPage)-1) )} className="cursor-pointer px-3 py-1  rounded text-sm disabled:opacity-50 hover:bg-gray-100" >
+                            <ChevronLeft/>
                           Précedent  
-                        </ChevronLeft>
+                        </button>
 
-                        <span className="">
-                            Page {currentPage}/ {totalPage}
+                        <span className="text-sm font-medium">
+                            Page {Number(currentPage)}/ {Number(totalPage)}
                         </span>
-                        <ChevronRight size={35}
+                        <button 
                         disabled={currentPage >= totalPage}
-                        onClick={() => updateUrl ("page", String(currentPage + 1))} className="cursor-pointer"
-                        >Suivant</ChevronRight>
+                        onClick={() => updateUrl ("page", String(Number(currentPage) + 1))} className="px-3 py-1  rounded text-sm disabled:opacity-50 hover:bg-gray-100 cursor-pointer"
+                        > <ChevronRight /> Suivant</button>
                 </div>
             </div>
+
+            <CoursModale isOpen={isFormopen} onClose={() => setIsFormOpen(false)} />
         </section>  
     )
 }
