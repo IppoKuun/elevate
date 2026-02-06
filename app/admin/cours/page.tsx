@@ -54,7 +54,7 @@ export default async function Cours({searchParams} : PageProps) {
 
     return(
         <>
-            <CoursManager totalPage={ttPages} initialCours={cours} canEdit={canEdit}/>
+            <CoursManager currentPage={currentPage} totalPage={ttPages} initialCours={cours} canEdit={canEdit}/>
         </>
     )
 }

@@ -22,7 +22,7 @@ défault sois celle après qu'on est chercher dans l'URL sa valeur
 
 Pour la pagination. Si le total des pages est sup a 1 le btn precedent 
 est désactivé
-mais si ont clique ça va changer l'url, avec page comme vlé et comme 
+mais si ont clique ça va changer l'url, avec page comme clé et comme 
 valeur la page
 actu -1
 
