@@ -1,13 +1,15 @@
 import { Transition, Dialog, TransitionChild } from "@headlessui/react"
 import { Fragment } from "react/jsx-runtime"
+import CoursForm from "./coursForm";
 
 
 interface CourseModalProps {
   isOpen: boolean; // On utilise souvent 'isOpen' par convention
   onClose: () => void;
+  courseToEdit: Boolean
 }
 
-export default function CoursModale({isOpen, onClose, }: CourseModalProps ){
+export default function CoursModale({isOpen, onClose, courseToEdit}: CourseModalProps ){
 
     return(
         <Transition show={isOpen} appear as={Fragment}>
@@ -38,6 +40,8 @@ export default function CoursModale({isOpen, onClose, }: CourseModalProps ){
                                                 {courseToEdit ? "Modifier le cours" : "Créer un nouveau cours"}
                                                 </Dialog.Title>
                         </Dialog.Panel>
+
+                        <CoursForm coursToEdit={courseToEdit}  />
 
                         </Transition.Child>
                 </div>

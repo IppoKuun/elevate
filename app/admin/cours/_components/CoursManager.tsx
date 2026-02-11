@@ -144,8 +144,7 @@ export function CoursManager({initialCours, canEdit, totalPage, currentPage}: Co
                         > <ChevronRight /> Suivant</button>
                 </div>
             </div>
-
-            <CoursModale isOpen={isFormopen} courseToEdit={} onClose={() => setIsFormOpen(false)} />
+            <CoursModale isOpen={isFormopen} courseToEdit={coursToEdit} onClose={() => setIsFormOpen(false)} />
         </section>  
     )
 }

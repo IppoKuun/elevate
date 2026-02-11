@@ -72,7 +72,7 @@ export async function updateCourseAction(prevData:unknown, formData: FormData){
     if (!updated) return{
         ok:false, userMsg: "Impossible d'enregistrer dans la base de données la modifications"
     }
-    return {ok:true}
+    return {ok:true, update: true}
 }
 
 export async function deleteCoursAction(id: string){
