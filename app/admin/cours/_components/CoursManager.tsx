@@ -1,156 +1,198 @@
-"use client"
-import { useState } from "react"
-import { toast } from "sonner" 
-import { deleteCoursAction } from "../actions"
-import { Filter, Pencil, Search, Trash, ChevronLeft, ChevronRight } from "lucide-react"
-import { usePathname, useSearchParams } from "next/navigation"
-import { useRouter } from "next/navigation"
-import CoursModale from "./coursModale"
-import { Course } from "@/app/type"
+"use client";
+
+import { useState } from "react";
+import { toast } from "sonner";
+import { deleteCoursAction } from "../actions";
+import { Pencil, Search, Trash, ChevronLeft, ChevronRight } from "lucide-react";
+import { usePathname, useSearchParams, useRouter } from "next/navigation";
+import CoursModale from "./coursModale";
+import { Course } from "@/app/type";
 
 interface CoursManagerProps {
-    initialCours :any[],
-    canEdit: boolean,
-    totalPage: Number
-    currentPage: Number
+  initialCours: Course[];
+  canEdit: boolean;
+  totalPage: number;
+  currentPage: number;
 }
- 
-export function CoursManager({initialCours, canEdit, totalPage, currentPage}: CoursManagerProps){
-    const [courseToDelete, setCourseToDelete] = useState(null)
-    const [isFormopen, setIsFormOpen] = useState(false)
-    const [coursToEdit, setCoursToEdit] = useState<Course | null>(null)
 
-    const router = useRouter()
-    const searchParam = useSearchParams()
-    const pathname = usePathname()
+export function CoursManager({ initialCours, canEdit, totalPage, currentPage }: CoursManagerProps) {
+  const [courseToDelete, setCourseToDelete] = useState<Course | null>(null);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [coursToEdit, setCoursToEdit] = useState<Course | null>(null);
 
-    function updateUrl(key: string, value: string ){
-        const params = new URLSearchParams(searchParam.toString())
+  const router = useRouter();
+  const searchParam = useSearchParams();
+  const pathname = usePathname();
 
-        if (value){
-            params.set( key, value)
-        } else {
-            params.delete(key)
-        }
+  function updateUrl(key: string, value: string) {
+    const params = new URLSearchParams(searchParam.toString());
 
-        if(key !== "page" ){
-            params.set("page", "1")
-        }
-
-        router.push(`${pathname}?${params.toString()}`)
+    if (value) {
+      params.set(key, value);
+    } else {
+      params.delete(key);
     }
 
-
-    function handleQuery(plain: string){
-        const timer = setTimeout(() => {
-            updateUrl("q", plain)
-        }, 300)
-        return () => clearTimeout(timer)
+    if (key !== "page") {
+      params.set("page", "1");
     }
 
-    const openDeleteModale = (cours: any) => setCourseToDelete(cours);
+    router.push(`${pathname}?${params.toString()}`);
+  }
 
-    async function handleConfirmDelete(id: string){
-        if (!courseToDelete) return;
-        const actionDelete = await deleteCoursAction(id)    
-        if (actionDelete.ok){
-            toast.success("Cours supprimé avec succès")
-            setCourseToDelete(null)
-        } else {
-            toast.error(actionDelete?.userMsg ?? "suppression impossible")
-        }
+  async function handleConfirmDelete(id: string) {
+    const actionDelete = await deleteCoursAction(id);
+
+    if (actionDelete?.ok) {
+      toast.success("Cours supprime avec succes");
+      setCourseToDelete(null);
+      router.refresh();
+      return;
     }
 
-    const handleCreate = () => setIsFormOpen(true)
+    toast.error(actionDelete?.userMsg ?? "Suppression impossible");
+  }
 
-    const handleEdit = (cours:any) => {setIsFormOpen(true); setCoursToEdit(cours)}
-    
-    const handleFormSucces = (msg :string) => {
-        setIsFormOpen(false)
-        toast.success(msg)
-    }
-    
-    return(
-        <section className="min-h-screen flex flex-col relative px-20 items-center mt-5">
-            {canEdit && (
-            <button 
-            onClick={handleCreate}
-            className="buttonForm top-5 absolute ml-335 w-30 text-center">+ Nouveau</button>
+  const handleCreate = () => {
+    setCoursToEdit(null);
+    setIsFormOpen(true);
+  };
+
+  const handleEdit = (cours: Course) => {
+    setIsFormOpen(true);
+    setCoursToEdit(cours);
+  };
+
+  const handleFormSucces = (msg: string) => {
+    setIsFormOpen(false);
+    toast.success(msg);
+    router.refresh();
+  };
+
+  return (
+    <section className="min-h-screen flex flex-col relative px-20 items-center mt-5">
+      {canEdit && (
+        <button onClick={handleCreate} className="buttonForm top-5 absolute ml-335 w-30 text-center">
+          + Nouveau
+        </button>
+      )}
+
+      <div className="overflow-x-auto mt-50 w-full shadow rounded-2xl flex flex-col justify-center items-center border border-slate-300">
+        <div className="flex flex-row justify-between p-6 gap-4 w-full">
+          <div className="relative border border-slate-300 focus-within:border-slate-700 flex items-center h-10 rounded-xl w-full max-w-md">
+            <Search className="absolute left-2" color="gray" size={18} />
+            <input
+              placeholder="Rechercher"
+              defaultValue={searchParam.get("q")?.toString()}
+              onChange={(e) => updateUrl("q", e.target.value)}
+              className="w-full border-none ml-8 outline-none focus:ring-0"
+            />
+          </div>
+
+          <select
+            className="border rounded px-2"
+            value={searchParam.get("type") ?? ""}
+            onChange={(e) => updateUrl("type", e.target.value)}
+          >
+            <option value="">Tous</option>
+            <option value="paid">Payant</option>
+            <option value="free">Gratuit</option>
+          </select>
+
+          <select
+            className="border rounded px-2"
+            value={searchParam.get("sort") ?? "desc"}
+            onChange={(e) => updateUrl("sort", e.target.value)}
+          >
+            <option value="desc">Recent</option>
+            <option value="asc">Anciens</option>
+          </select>
+        </div>
+
+        <table className="w-full border-collapse text-left">
+          <thead className="bg-slate-200 text-slate-600">
+            <tr>
+              <td className="px-4">Cours</td>
+              <td className="px-4">Prix</td>
+              <td className="px-4">Categories</td>
+              {canEdit && <td className="px-4">Action</td>}
+            </tr>
+          </thead>
+          <tbody>
+            {initialCours.length === 0 && (
+              <tr>
+                <td colSpan={4} className="text-gray-500 text-center text-medium">
+                  Aucun cours present en base de donnees
+                </td>
+              </tr>
             )}
-
-            
-            <div className="overflow-x-auto mt-50 w-full rounded flex flex-col justify-center 
-            items-center shadow border">
-                <div className="flex flex-row justify-between p-6">
-                    <div className="relative border border-slate-300 focus-within:border-slate-700 flex items-center w-full h-10 rounded-xl ">
-                        <Search className="absolute" color="gray"/>
-                        <input
-                        placeholder="Rechercher"
-                        defaultValue={searchParam.get("q")?.toString()}
-                        onChange={(e)=> handleQuery(e.target.value)}
-                        className="w-65 border-none ml-7 outline-none focus:ring-0 ">
-                        </input>
+            {initialCours.map((cours) => (
+              <tr key={cours.id} className="border-t">
+                <td className="px-4 py-2">{cours.title}</td>
+                <td className="px-4 py-2">{Number(cours.priceCents) ?? "-"}</td>
+                <td className="px-4 py-2">{cours.category ?? "-"}</td>
+                {canEdit && (
+                  <td className="px-4 py-2">
+                    <div className="flex gap-3">
+                      <Pencil onClick={() => handleEdit(cours)} className="cursor-pointer" size={18} />
+                      <Trash onClick={() => setCourseToDelete(cours)} className="cursor-pointer" size={18} />
                     </div>
-                    <select className="border"  onChange={(e) => updateUrl("type", e.target.value )} >
-                        <Filter />
-                        <option className="">Tous</option>
-                        <option value={"isPaid"} className="">Payant</option>
-                        <option value={"desc"} className="">Récent</option>
-                        <option value={"asc"} className="">Anciens</option>
-                    </select>
-                </div>
+                  </td>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
-                <table className="w-full border-collapse text-left ">
-                    <thead className="bg-slate-200">
-                        <tr>
-                            <td className="px-4 ">Cours</td>
-                            <td className="px-4">Prix</td>
-                            <td className="px-4">Catégories</td>
-                            {canEdit && <td className="px-4">Action</td>}
-                        </tr>
-                    </thead>
-                    <tbody className="">
-                        {initialCours.length === 0 && (
-                            <tr>
-                                <td colSpan={4} className="text-gray-500 text-center text-medium">Aucun cours présent en base de données</td>
-                            </tr>
-                        )}
-                        {initialCours.map((cours) => (
-                            <tr key={cours.id}>
-                                <td>{cours.title}</td>
-                                <td> {cours.priceCents}</td>
-                                {canEdit && (
-                                    <>
-                                        <Pencil onClick={()=> handleEdit(cours)}></Pencil>
-                                        <Trash onClick={() => openDeleteModale(cours)}></Trash>
-                                    </>
-                                )}
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-                <div className="flex flex-row gap-5 justify-center w-100 items-center mt-10">
-                        <button disabled={Number(currentPage) <= 1} 
-                         onClick={()=> updateUrl("page", String(Number(currentPage)-1) )} className="cursor-pointer px-3 py-1  rounded text-sm disabled:opacity-50 hover:bg-gray-100" >
-                            <ChevronLeft/>
-                          Précedent  
-                        </button>
+        <div className="flex flex-row gap-5 justify-center w-100 items-center mt-10">
+          <button
+            disabled={currentPage <= 1}
+            onClick={() => updateUrl("page", String(currentPage - 1))}
+            className="cursor-pointer px-3 py-1 rounded text-sm disabled:opacity-50 hover:bg-gray-100"
+          >
+            <ChevronLeft />
+            Precedent
+          </button>
 
-                        <span className="text-sm font-medium">
-                            Page {Number(currentPage)}/ {Number(totalPage)}
-                        </span>
-                        <button 
-                        disabled={currentPage >= totalPage}
-                        onClick={() => updateUrl ("page", String(Number(currentPage) + 1))} className="px-3 py-1  rounded text-sm disabled:opacity-50 hover:bg-gray-100 cursor-pointer"
-                        > <ChevronRight /> Suivant</button>
-                </div>
+          <span className="text-sm font-medium">
+            Page {currentPage} / {totalPage}
+          </span>
+
+          <button
+            disabled={currentPage >= totalPage}
+            onClick={() => updateUrl("page", String(currentPage + 1))}
+            className="px-3 py-1 rounded text-sm disabled:opacity-50 hover:bg-gray-100 cursor-pointer"
+          >
+            <ChevronRight /> Suivant
+          </button>
+        </div>
+      </div>
+
+      <CoursModale
+        isOpen={isFormOpen}
+        courseToEdit={coursToEdit}
+        onClose={() => setIsFormOpen(false)}
+        onSucces={handleFormSucces}
+      />
+
+      {courseToDelete && (
+        <div className="fixed inset-0 z-40 bg-black/30 flex items-center justify-center">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md">
+            <p className="mb-4">Supprimer le cours "{courseToDelete.title}" ?</p>
+            <div className="flex justify-end gap-2">
+              <button className="px-3 py-2 border rounded" onClick={() => setCourseToDelete(null)}>
+                Annuler
+              </button>
+              <button
+                className="px-3 py-2 bg-red-600 text-white rounded"
+                onClick={() => handleConfirmDelete(courseToDelete.id)}
+              >
+                Supprimer
+              </button>
             </div>
-            <CoursModale 
-            isOpen={isFormopen}
-             courseToEdit={coursToEdit}
-              onClose={() => setIsFormOpen(false)}
-              onSucces={handleFormSucces}
-              />
-        </section>  
-    )
+          </div>
+        </div>
+      )}
+    </section>
+  );
 }

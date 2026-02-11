@@ -29,7 +29,7 @@ export async function createCoursAction(prevData: unknown, formData: FormData){
         ...raw,
         priceCents: Number(raw.priceCents),
         isPaid : raw.isPaid === "on"
-    })
+    })  
     if (!parsed.success) return {
         ok:false, userMsg: "Erreur, impossible de créer le cours", error : parsed.error.flatten().fieldErrors
     }
