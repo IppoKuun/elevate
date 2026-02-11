@@ -6,6 +6,7 @@ import { Filter, Pencil, Search, Trash, ChevronLeft, ChevronRight } from "lucide
 import { usePathname, useSearchParams } from "next/navigation"
 import { useRouter } from "next/navigation"
 import CoursModale from "./coursModale"
+import { Course } from "@/app/type"
 
 interface CoursManagerProps {
     initialCours :any[],
@@ -17,7 +18,7 @@ interface CoursManagerProps {
 export function CoursManager({initialCours, canEdit, totalPage, currentPage}: CoursManagerProps){
     const [courseToDelete, setCourseToDelete] = useState(null)
     const [isFormopen, setIsFormOpen] = useState(false)
-    const [coursToEdit, setCoursToEdit] = useState(null)
+    const [coursToEdit, setCoursToEdit] = useState<Course | null>(null)
 
     const router = useRouter()
     const searchParam = useSearchParams()
@@ -52,11 +53,11 @@ export function CoursManager({initialCours, canEdit, totalPage, currentPage}: Co
     async function handleConfirmDelete(id: string){
         if (!courseToDelete) return;
         const actionDelete = await deleteCoursAction(id)    
-        if (actionDelete){
+        if (actionDelete.ok){
             toast.success("Cours supprimé avec succès")
             setCourseToDelete(null)
         } else {
-            toast.success(actionDelete.userMsg)
+            toast.error(actionDelete?.userMsg ?? "suppression impossible")
         }
     }
 
@@ -144,7 +145,12 @@ export function CoursManager({initialCours, canEdit, totalPage, currentPage}: Co
                         > <ChevronRight /> Suivant</button>
                 </div>
             </div>
-            <CoursModale isOpen={isFormopen} courseToEdit={coursToEdit} onClose={() => setIsFormOpen(false)} />
+            <CoursModale 
+            isOpen={isFormopen}
+             courseToEdit={coursToEdit}
+              onClose={() => setIsFormOpen(false)}
+              onSucces={handleFormSucces}
+              />
         </section>  
     )
 }

@@ -2,19 +2,33 @@
 
 import { useActionState, useEffect } from "react"
 import { createCoursAction, updateCourseAction } from "../actions"
+import { toast } from "sonner"
+import { Course } from "@/app/type"
 
-const result = {ok: true, update?: "update"}
-const initialResult = {ok: false}
+type FormErrors = Record<string, string[] | undefined>;
 
-const actionToUse = result.update ? updateCourseAction : createCoursAction
+interface courFormProps {
+    coursToEdit ?: Course | null, onSucces: (msg:string) => void
+}
 
-export default function CoursForm({coursToEdit}: {coursToEdit : []} ){
-    const [result, formAction, pending ] = useActionState(actionToUse, initialResult)
+type result = {ok: true} | {ok: false; error?: FormErrors}
+
+const initialResult = {ok: false, error : {}}
+
+
+export default function CoursForm({coursToEdit, onSucces}: courFormProps){
+    const actionToUse = coursToEdit ? updateCourseAction : createCoursAction
+
+    const [result, formAction, pending ] = useActionState<result, FormData>(actionToUse, initialResult)
 
 
     useEffect(() => {
-        if (result.ok)
-    }, [result])
+        if (result.ok){
+            onSucces("Les information ont bien été enregistrée en base de donnès")
+        }else {
+            toast.error("Véfifié les champs du formulaire")
+        }
+    }, [result, onSucces])
 
     return(
         <form action={formAction} className="">
@@ -30,28 +44,27 @@ export default function CoursForm({coursToEdit}: {coursToEdit : []} ){
                 className="w-full border rounded-md p-2 text-sm focus:ring-2 focus:ring-black outline-none"
                 required
                 />
-                {result?.errors?.title && (
-                <p className="text-red-500 text-xs mt-1">{result.errors.title[0]}</p>
+                {!result.ok && result?.error?.title && (
+                <p className="text-red-500 text-xs mt-1">{result.error.title[0]}</p>
                 )}
             </div>
             <div>
                 <label className="block text-sm font-medium mb-1">Description courte</label>
                 <textarea
                     name="description"
-                    defaultValue={coursToEdit?.description}
+                    defaultValue={coursToEdit?.description ?? ""}
                     placeholder="Une petite phrase d'accroche..."
                     className="w-full border rounded-md p-2 text-sm h-24 focus:ring-2 focus:ring-black outline-none"
                 />
             </div>
 
-            
             <div className="flex gap-4">
                 <div className="flex-1">
                 <label className="block text-sm font-medium mb-1">Prix (en centimes)</label>
                 <input
                     name="priceCents"
                     type="number"
-                    defaultValue={coursToEdit?.priceCents ?? 0}
+                    defaultValue={coursToEdit?.priceCents?.toNumber()}
                     className="w-full border rounded-md p-2 text-sm"
                 />
                 </div>
@@ -61,7 +74,7 @@ export default function CoursForm({coursToEdit}: {coursToEdit : []} ){
                     id="isPaid"
                     name="isPaid"
                     type="checkbox"
-                    defaultChecked={coursToEdit?.isPaid}
+                    defaultChecked={coursToEdit?.isPaid ?? false}
                     className="w-4 h-4 text-black border-gray-300 rounded focus:ring-black"
                 />
                 <label htmlFor="isPaid" className="ml-2 text-sm text-gray-700">
@@ -79,7 +92,6 @@ export default function CoursForm({coursToEdit}: {coursToEdit : []} ){
                 {pending ? "Sauvegarde en cours..." : coursToEdit ? "Mettre à jour" : "Créer le cours"}
                 </button>
             </div>
-
         </form>
     )
 

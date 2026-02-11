@@ -1,15 +1,17 @@
-import { Transition, Dialog, TransitionChild } from "@headlessui/react"
+import { Transition, Dialog } from "@headlessui/react"
 import { Fragment } from "react/jsx-runtime"
 import CoursForm from "./coursForm";
+import { Course } from "@/app/type";
 
 
 interface CourseModalProps {
   isOpen: boolean; // On utilise souvent 'isOpen' par convention
   onClose: () => void;
-  courseToEdit: Boolean
+  courseToEdit: Course | null,
+  onSucces : (msg: string) => void
 }
 
-export default function CoursModale({isOpen, onClose, courseToEdit}: CourseModalProps ){
+export default function CoursModale({isOpen, onClose, courseToEdit, onSucces}: CourseModalProps ){
 
     return(
         <Transition show={isOpen} appear as={Fragment}>
@@ -41,8 +43,7 @@ export default function CoursModale({isOpen, onClose, courseToEdit}: CourseModal
                                                 </Dialog.Title>
                         </Dialog.Panel>
 
-                        <CoursForm coursToEdit={courseToEdit}  />
-
+                        <CoursForm coursToEdit={courseToEdit} onSucces={onSucces} />
                         </Transition.Child>
                 </div>
             </div>
