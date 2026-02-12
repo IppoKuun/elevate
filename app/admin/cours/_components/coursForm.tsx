@@ -1,9 +1,10 @@
 "use client"
 
-import { useActionState, useEffect } from "react"
+import { useActionState, useEffect, useState } from "react"
 import { createCoursAction, updateCourseAction } from "../actions"
 import { toast } from "sonner"
 import { Course } from "@/app/type"
+import { Star } from "lucide-react"
 
 type FormErrors = Record<string, string[] | undefined>;
 
@@ -22,6 +23,35 @@ const initialResult: CourseFormState = { ok: false, userMsg: "", error: {} };
 export default function CoursForm({ coursToEdit, onSucces }: CourFormProps) {
   const actionToUse = coursToEdit ? updateCourseAction : createCoursAction;
   const [result, formAction, pending] = useActionState<CourseFormState, FormData>(actionToUse, initialResult);
+  const [generatedContent, setGeneratedContent] = useState(coursToEdit?.content ?? "");
+  const [isGenerating, setIsGenerating] = useState(false);
+
+async function handleGenerate(e: React.MouseEvent<HTMLButtonElement>) {
+  const form = e.currentTarget.form;
+  if (!form) return;
+
+  const formData = new FormData(form);
+  const title = String(formData.get("title") ?? "").trim();
+  const description = String(formData.get("description") ?? "").trim();
+
+  if (!title) return toast.error("Titre requis pour generer le contenu");
+
+    setIsGenerating(true);
+    try {
+      const res = await fetch("/api/IA", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, description}),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error ?? "Generation impossible");
+      setGeneratedContent(data.content ?? "");
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setIsGenerating(false);
+    }
+  }
 
 
   useEffect(() => {
@@ -62,6 +92,19 @@ export default function CoursForm({ coursToEdit, onSucces }: CourFormProps) {
           placeholder="Une petite phrase d'accroche..."
           className="w-full border rounded-md p-2 text-sm h-24 focus:ring-2 focus:ring-black outline-none"
         />
+      </div>
+      <div>
+        <button type="button" disabled={isGenerating} onClick={handleGenerate} 
+        
+      className="inline-flex items-center cursor-pointer justify-center rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
+        >Généré le cours avec l'IA </button>
+        <textarea 
+        className="w-full min-h-56 mt-2 rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm leading-6 text-slate-800 shadow-sm outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200 placeholder:text-slate-400"
+
+        name="content"
+        value={isGenerating ? "Patience, le cours est entrain de se généré..." : generatedContent }
+        onChange={(e)=> setGeneratedContent(e.target.value)}
+        ></textarea>
       </div>
 
       <div className="flex gap-4">

@@ -33,6 +33,10 @@ export const CourSchema = z.object({
     isPaid: z.boolean().default(false),
     thumbnailUrl: z.string().url().optional().or(z.literal("")),
 
+    content : z
+    .string()
+    .trim()
+
 })
 
 

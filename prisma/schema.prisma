@@ -41,7 +41,7 @@ model StaffInvitation {
 model Cours {
   id                  String         @id @default(uuid())
   title               String
-  content             String
+  content             String         @default("")
   slug                String         @unique
   description         String?
   priceCents          Int?
