@@ -4,7 +4,15 @@ import { requireStaffRole } from "@/lib/rbac";
 import { prisma } from "@/lib/db/prisma";
 import AppError from "@/lib/error";
 
-vi.mock("@prisma/client")
+const prismaMock = vi.hoisted(() => ({
+    staffInvitation: {
+        create: vi.fn(),
+    },
+}));
+
+vi.mock("@/lib/db/prisma", () => ({
+    prisma: prismaMock,
+}));
 vi.mock("@/lib/session");     
 
 vi.mock("@/lib/rbac", () => {
@@ -36,9 +44,7 @@ describe("invitation test", () => {
         vi.mocked(prisma.staffInvitation.create).mockRejectedValue((new AppError))
         
           
-         await expect(await createInvitation("vitest2@gmail.com", "ADMIN")).rejects.toThrow()
-         
-    
+         await expect(createInvitation("vitest2@gmail.com", "ADMIN")).rejects.toThrow()
     })
 
     it("cannot invite OWNER", async() => {
@@ -49,7 +55,7 @@ describe("invitation test", () => {
         vi.mocked(prisma.staffInvitation.create).mockRejectedValue((new AppError))
 
         await expect (
-            await createInvitation("vitest3@gmail.com", "OWNER"
+             createInvitation("vitest3@gmail.com", "OWNER"
             ))
         .rejects.toThrow()
     })
