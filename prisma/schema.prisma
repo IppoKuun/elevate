@@ -43,6 +43,8 @@ model Cours {
   title               String
   content             String         @default("")
   slug                String         @unique
+  thumbnailUrl        String?
+  thumbnailPublicId   String?
   description         String?
   priceCents          Int?
   createdByAuthUserId String?

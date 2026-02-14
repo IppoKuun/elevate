@@ -20,7 +20,6 @@ export default async function bootstrapOwner(){
         data:{
             name, userId: sessionID, role:"OWNER", email: sessionEmail,
         },
-
     })
 
 }

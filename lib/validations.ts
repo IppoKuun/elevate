@@ -10,6 +10,9 @@ export function slugify(input: string) {
     .replace(/^-+|-+$/g, "");
 }
 
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+
 
 export const priceCentsSchema = z
     .number()
@@ -32,12 +35,23 @@ export const CourSchema = z.object({
     priceCents: priceCentsSchema,
     isPaid: z.boolean().default(false),
     thumbnailUrl: z.string().url().optional().or(z.literal("")),
+    
 
     content : z
     .string()
     .trim()
 
 })
+
+export const imageSchema = z.object({
+  image: z
+    .instanceof(File)
+    .refine((file) => file.size <= MAX_FILE_SIZE, `L'image ne doit pas dépasser 5Mo.`)
+    .refine(
+      (file) => ACCEPTED_IMAGE_TYPES.includes(file.type),
+      "Seuls les formats .jpg, .jpeg, .png et .webp sont acceptés."
+    ),
+});
 
 
 export type zodSchema = z.infer<typeof CourSchema>
