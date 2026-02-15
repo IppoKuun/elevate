@@ -87,13 +87,15 @@ export async function updateCourseAction(prevData:unknown, formData: FormData){
     return {ok:true, update: true}
 }
 
-export async function deleteCoursAction(id: string, publicId: string){
+export async function deleteCoursAction(id: string){
       await requireStaffRole("ADMIN");
+      // input: id
+    const cours = await prisma.cours.findUnique({ where: { id }, select: { thumbnailPublicId: true } });
+    if (cours?.thumbnailPublicId) await deleteImage(cours.thumbnailPublicId);
+
     const deleted = await prisma.cours.delete({
         where: {id}
     })
-
-    if (deleted) await deleteImage(publicId)
     
     if (!deleted) return {ok:false, userMsg:"Impossible d'enregistrer la suppression dans la base de données."}
             return {ok: true}

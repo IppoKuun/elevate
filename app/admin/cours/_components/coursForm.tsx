@@ -76,7 +76,7 @@ async function handleGenerate(e: React.MouseEvent<HTMLButtonElement>) {
           name="title"
           defaultValue={coursToEdit?.title}
           placeholder="Ex: Apprendre Next.js en 3h"
-          className="w-full border rounded-md p-2 text-sm focus:ring-2 focus:ring-black outline-none"
+          className="w-full border rounded-xl border-2 border-slate-200  p-2 text-sm focus:ring-2 focus:ring-black outline-none"
           required
         />
         {!result.ok && result.error?.title?.[0] && (
@@ -94,7 +94,7 @@ async function handleGenerate(e: React.MouseEvent<HTMLButtonElement>) {
           name="description"
           defaultValue={coursToEdit?.description ?? ""}
           placeholder="Une petite phrase d'accroche..."
-          className="w-full border rounded-md p-2 text-sm h-24 focus:ring-2 focus:ring-black outline-none"
+          className="w-full border-2 border-slate-200 rounded-xl p-2 text-sm h-24 focus:ring-2 focus:ring-black outline-none"
         />
       </div>
       <div>
