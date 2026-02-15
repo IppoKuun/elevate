@@ -1,9 +1,10 @@
 "use server"
 import { prisma } from "@/lib/db/prisma";
 import { requireStaffRole } from "@/lib/rbac";
-import { slugify, updateCourseSchema } from "@/lib/validations";
+import { slugify, updateCourseSchema, imageSchema } from "@/lib/validations";
 import { CourSchema } from "@/lib/validations";
 import { revalidatePath } from "next/cache";
+import { uploadCloudinary } from "@/lib/cloudinary.config";
 
 export async function generateUniqueSlug(title: string, id?:string){
     const baseSlug = slugify(title)
@@ -33,6 +34,16 @@ export async function createCoursAction(prevData: unknown, formData: FormData){
     if (!parsed.success) return {
         ok:false, userMsg: "Erreur, impossible de créer le cours", error : parsed.error.flatten().fieldErrors
     }
+        const image = formData.get("image")
+        const imageParsed = imageSchema.safeParse(image)
+    
+        if (!imageParsed.success){
+            return {userMsg: imageParsed.error.flatten().fieldErrors}
+        }
+        const imageVerfied = imageParsed.data
+
+        const {secure_url, public_id } = await uploadCloudinary(imageVerfied.image) as any
+
     let finalSlug = await generateUniqueSlug(parsed.data.title)
 
     const create = await prisma.cours.create({

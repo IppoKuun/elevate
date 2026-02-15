@@ -10,7 +10,7 @@ export function slugify(input: string) {
     .replace(/^-+|-+$/g, "");
 }
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; 
+const MAX_FILE_SIZE = 15 * 1024 * 1024; 
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 
 
@@ -61,3 +61,4 @@ export const updateCourseSchema = CourSchema.partial().extend({
 })
 
 export type zodUpdateCourse = z.infer<typeof updateCourseSchema>
+export type ImageInput = z.infer<typeof imageSchema>;

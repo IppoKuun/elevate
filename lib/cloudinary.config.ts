@@ -7,7 +7,7 @@ cloudinary.config({
     api_secret : process.env.CLOUDINARY_API_SECRET,
 })
 
-async function uploadCloudinary(file:File){
+export async function uploadCloudinary(file:File){
     const arrayBuffer = await file.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
 
