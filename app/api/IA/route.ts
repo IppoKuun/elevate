@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     const response = await client.responses.create({
       model: process.env.OPENAI_MODEL ?? "gpt-4.1-mini",
       input: [
-        { role: "system", content: "Tu rediges du contenu de cours clair, structure et pedagogique." },
+        { role: "system", content: "Tu rediges du contenu de cours clair, structure et pedagogique. Ne genere pas de code, le message sera reçu dans une balise textarea donc afficher principalement du texte." },
         { role: "user", content: `Titre: ${title}\nDescription: ${description}\nCategorie: ${category}\nGenere le contenu complet.` }
       ],
       max_output_tokens: 900

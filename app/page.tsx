@@ -1,8 +1,6 @@
-import bootstrapOwner from "@/lib/bootstrap_owner";
 import Link from "next/link";
 
 export default async function Home() {
-  await bootstrapOwner()
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 text-slate-100 flex items-center justify-center px-6">
       <div className="max-w-3xl w-full bg-white/5 border border-white/10 backdrop-blur-md rounded-2xl p-10 shadow-xl space-y-6">
