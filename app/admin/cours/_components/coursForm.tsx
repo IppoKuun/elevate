@@ -4,8 +4,7 @@ import { useActionState, useEffect, useState } from "react"
 import { createCoursAction, updateCourseAction } from "../actions"
 import { toast } from "sonner"
 import { Course } from "@/app/type"
-import { Star } from "lucide-react"
-
+import ImageUpload from "./ImageUpload"
 type FormErrors = Record<string, string[] | undefined>;
 
 interface CourFormProps {
@@ -84,6 +83,11 @@ async function handleGenerate(e: React.MouseEvent<HTMLButtonElement>) {
           <p className="text-red-500 text-xs mt-1">{result.error.title[0]}</p>
         )}
       </div>
+      <ImageUpload
+      label= "Image de couverture du cours"
+      name="image"
+      defaultValue={coursToEdit?.thumbnailUrl}
+      />
       <div>
         <label className="block text-sm font-medium mb-1">Description courte</label>
         <textarea
