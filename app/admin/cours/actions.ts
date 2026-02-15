@@ -5,6 +5,7 @@ import { slugify, updateCourseSchema, imageSchema } from "@/lib/validations";
 import { CourSchema } from "@/lib/validations";
 import { revalidatePath } from "next/cache";
 import { uploadCloudinary } from "@/lib/cloudinary.config";
+import {v2 as cloudinary } from "cloudinary"
 
 export async function generateUniqueSlug(title: string, id?:string){
     const baseSlug = slugify(title)
@@ -52,7 +53,7 @@ export async function createCoursAction(prevData: unknown, formData: FormData){
     if (!create) return {ok:false, userMsg :" Impossible de créer le cours" }
     revalidatePath("/admin/cours")
 
-    return {ok:true}
+    return {ok:true, secure_url, public_id}
 
 
     
@@ -86,13 +87,18 @@ export async function updateCourseAction(prevData:unknown, formData: FormData){
     return {ok:true, update: true}
 }
 
-export async function deleteCoursAction(id: string){
+export async function deleteCoursAction(id: string, publicId: string){
       await requireStaffRole("ADMIN");
     const deleted = await prisma.cours.delete({
         where: {id}
     })
+
+    if (deleted) await deleteImage(publicId)
     
     if (!deleted) return {ok:false, userMsg:"Impossible d'enregistrer la suppression dans la base de données."}
             return {ok: true}
+}
 
+export async function deleteImage(publicId: string) {
+  return await cloudinary.uploader.destroy(publicId);
 }
