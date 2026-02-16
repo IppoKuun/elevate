@@ -66,7 +66,6 @@ export default function ImageUpload({label, defaultValue, name}: ImageUploadProp
                 )
                 }
             </div>
-
         </div>
      )
 }

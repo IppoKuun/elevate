@@ -52,11 +52,59 @@ model Cours {
   createdAt           DateTime       @default(now())
   updatedAt           DateTime       @updatedAt
   isPaid              Boolean?
+  stripeProductId     String?        @unique
+  stripePriceId       String?        @unique
+  purchases           CoursePurchase[]
+
   @@index([title])
   @@index([priceCents])
   @@map("cours")
   @@schema("app")
 }
+
+model CoursePurchase {
+  id                      String         @id @default(uuid())
+  authUserId              String
+  courseId                String
+  status                  PurchaseStatus @default(PENDING)
+  amountCents             Int
+  currency                String         @default("eur")
+  stripeCheckoutSessionId String         @unique
+  stripePaymentIntentId   String?        @unique
+  stripeCustomerId        String?
+  paidAt                  DateTime?
+  refundedAt              DateTime?
+  createdAt               DateTime       @default(now())
+  updatedAt               DateTime       @updatedAt
+
+  course                  Cours          @relation(fields: [courseId], references: [id], onDelete: Restrict)
+
+  @@unique([authUserId, courseId])
+  @@index([authUserId])
+  @@index([courseId])
+  @@index([status])
+  @@index([createdAt])
+  @@schema("app")
+}
+
+model WebhookEvent {
+  id           String        @id @default(cuid())
+  eventId      String        @unique
+  eventType    String
+  status       WebhookStatus @default(RECEIVED)
+  payload      Json
+  attemptCount Int           @default(0)
+  lastError    String?
+  receivedAt   DateTime      @default(now())
+  processedAt  DateTime?
+
+  @@index([provider])
+  @@index([status])
+  @@index([eventType])
+  @@index([receivedAt])
+  @@schema("app")
+}
+
 
 model AuditLog {
   id              String   @id @default(uuid())
@@ -99,6 +147,25 @@ enum StaffRoles {
   ADMIN
   VIEWER
   TEST
+
+  @@schema("app")
+}
+
+enum PurchaseStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+  CANCELED
+
+  @@schema("app")
+}
+
+enum WebhookStatus {
+  RECEIVED
+  PROCESSED
+  FAILED
+  IGNORED
 
   @@schema("app")
 }

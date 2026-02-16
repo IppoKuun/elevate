@@ -39,7 +39,7 @@ export async function createCoursAction(prevData: unknown, formData: FormData){
         const imageParsed = imageSchema.safeParse(image)
     
         if (!imageParsed.success){
-            return {userMsg: imageParsed.error.flatten().fieldErrors}
+            return {ok:false, userMsg: imageParsed.error.flatten().fieldErrors}
         }
         const imageVerfied = imageParsed.data
 

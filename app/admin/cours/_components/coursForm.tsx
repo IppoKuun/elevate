@@ -86,7 +86,7 @@ async function handleGenerate(e: React.MouseEvent<HTMLButtonElement>) {
       <ImageUpload
       label= "Image de couverture du cours"
       name="image"
-      defaultValue={coursToEdit?.thumbnailUrl}
+      defaultValue={coursToEdit?.thumbnailUrl ?? ""}
       />
       <div>
         <label className="block text-sm font-medium mb-1">Description courte</label>
