@@ -98,7 +98,6 @@ model WebhookEvent {
   receivedAt   DateTime      @default(now())
   processedAt  DateTime?
 
-  @@index([provider])
   @@index([status])
   @@index([eventType])
   @@index([receivedAt])
