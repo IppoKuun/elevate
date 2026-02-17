@@ -65,7 +65,7 @@ model Cours {
 model CoursePurchase {
   id                      String         @id @default(uuid())
   authUserId              String
-  courseId                String
+  coursId                String
   status                  PurchaseStatus @default(PENDING)
   amountCents             Int
   currency                String         @default("eur")
@@ -77,11 +77,11 @@ model CoursePurchase {
   createdAt               DateTime       @default(now())
   updatedAt               DateTime       @updatedAt
 
-  course                  Cours          @relation(fields: [courseId], references: [id], onDelete: Restrict)
+  course                  Cours          @relation(fields: [coursId], references: [id], onDelete: Restrict)
 
-  @@unique([authUserId, courseId])
+  @@unique([authUserId, coursId])
   @@index([authUserId])
-  @@index([courseId])
+  @@index([coursId])
   @@index([status])
   @@index([createdAt])
   @@schema("app")

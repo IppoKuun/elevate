@@ -1,0 +1,5 @@
+[dotenv@17.2.3] injecting env (21) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+Datasource "db": PostgreSQL database "ia_saas_db", schemas "app, auth" at "localhost:5432"
+
+Already in sync, no schema change or pending migration was found.
+

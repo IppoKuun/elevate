@@ -34,7 +34,7 @@ export default async function checkoutSession(coursId: string){
                     currency:"eur", product_data:{
                         name:coursToCheckout.title, 
                         description: coursToCheckout.description ?? "",
-                        images:coursToCheckout.thumbnailUrl ?? [coursToCheckout.thumbnailUrl],
+                        images:coursToCheckout.thumbnailUrl ? [coursToCheckout.thumbnailUrl] : undefined,
                     }, unit_amount: coursToCheckout.priceCents
                 }, 
             }
@@ -43,12 +43,16 @@ export default async function checkoutSession(coursId: string){
     })
 
     await prisma.coursePurchase.create({
-        authUserId : userSession.user.id,
-        coursId: coursToCheckout.id,
-        amountCents: coursToCheckout.priceCents,
-        status: "PENDING",
-        stripeCheckoutSessionId: userSession.user.id,
-        currency: "eur",
+        data:{
+            authUserId : userSession.user.id,
+            coursId: coursToCheckout.id,            
+            stripeCustomerId: stripeSession.customer as string,
+            amountCents: Number(coursToCheckout.priceCents) ,
+            status: "PENDING",
+            stripeCheckoutSessionId: stripeSession.id,
+            currency: "eur",
+        }
+
     })
 
     if (!stripeSession.url) throw new AppError("La session stripe n'as pas donnée d'URL")
