@@ -2,14 +2,27 @@ import OpenAI from "openai";
 import { NextResponse } from "next/server";
 import { requireStaffRole } from "@/lib/rbac";
 import AppError from "@/lib/error";
+import rateLimits from "@/lib/redisRateLimits";
+import { headers } from 'next/headers';   
+import getSession from "@/lib/session";
 
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export async function POST(req: Request) {
+  const session = await getSession()
   try {
     if (!client || !process.env.OPENAI_API_KEY) {
+            console.error("PAS DE CLE OPEN AI")
       throw new AppError("Service IA indisponible pour le moment.");
     }
+    
+         const target = session?.user.id ?? (await headers()).get("x-forwarded-for")?.split(",")[0]
+         const key = `openAI : ${target}`
+        const limit = await rateLimits(key, 5, 60*60*1000)
+    // A FIX METTRE NEXTREPONSE.JSON AVANT"
+        if (!limit.allowed){
+          throw new AppError(`Trop d'appel ChatGPT, veuillez ressayez ultérieurement ${limit.remaining}`)
+        }  
 
     await requireStaffRole("ADMIN");
     const body = await req.json();
