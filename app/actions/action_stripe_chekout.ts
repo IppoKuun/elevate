@@ -1,7 +1,9 @@
 import { prisma } from "@/lib/db/prisma";
 import AppError from "@/lib/error";
+import rateLimits from "@/lib/redisRateLimits";
 import getSession from "@/lib/session";
 import { stripe } from "@/lib/stripe";
+import { headers } from "next/headers";
 
 export default async function checkoutSession(coursId: string){
     const userSession = await getSession()
@@ -19,23 +21,29 @@ export default async function checkoutSession(coursId: string){
 
     const baseURL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
 
+        const key = userSession.user.id as string|| (await headers()).get("x-forwarded-for") as string
+        const limit = await rateLimits(key, 10, 60*60*1000)
+
+        if (!limit.allowed){
+            throw new AppError("Trop de tentatives, veuillez ressayez plus tard")
+        }
     const stripeSession = await stripe.checkout.sessions.create({
         customer_email: userSession.user.email || undefined,
         mode:"payment",
         success_url:`${baseURL}/cours${coursId}`,
         cancel_url:`${baseURL}/checkout`,
-        metadata : {
+        metadata : {    
             coursId, userId: userSession.user.id
         },
         line_items: [
             {
-                quantity:1,
+                quantity: 1,
                 price_data: {
                     currency:"eur", product_data:{
                         name:coursToCheckout.title, 
                         description: coursToCheckout.description ?? "",
                         images:coursToCheckout.thumbnailUrl ? [coursToCheckout.thumbnailUrl] : undefined,
-                    }, unit_amount: coursToCheckout.priceCents
+                    }, unit_amount: coursToCheckout.priceCents ?? undefined
                 }, 
             }
         ]
@@ -45,7 +53,7 @@ export default async function checkoutSession(coursId: string){
     await prisma.coursePurchase.create({
         data:{
             authUserId : userSession.user.id,
-            coursId: coursToCheckout.id,            
+            courseId: coursToCheckout.id,            
             stripeCustomerId: stripeSession.customer as string,
             amountCents: Number(coursToCheckout.priceCents) ,
             status: "PENDING",
