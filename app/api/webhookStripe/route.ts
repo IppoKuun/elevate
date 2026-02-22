@@ -69,10 +69,10 @@ export default async function POST(req : NextRequest){
         if (valide){
            await resend.emails.send({
                 from:`${process.env.RESEND_FROM_EMAIL}`,
-                to: customerEmail,
+                to: customerEmail as string,
                 subject: `Accès à ${valide.course.title}`,
                 react: StripeWelcomeEmail({ 
-                    userName: customerName, 
+                    userName: customerName as string, 
                     courseTitle: valide.course.title
                 }),
             })
