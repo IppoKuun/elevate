@@ -5,6 +5,7 @@ import { prisma } from "./db/prisma"
 import getSession from "./session"
 import AppError from "./error"
 import { resend } from "./resend"
+import StaffInvitationEmail from "@/react-email-starter/emails/staff-invitation"
 
 function normalizedEmail(email : string){
     return email.toLocaleLowerCase().trim()
@@ -22,12 +23,14 @@ export async function createInvitation(email: string , role : StaffRoles){
     if (role === "OWNER") throw new AppError("VOUS NE POUVEZ PAS MODIFIER OWNER")
 
     const minRole = requireRoleToInvite(role)
-    const {staff} = await requireStaffRole(minRole)
+    const {staff, session} = await requireStaffRole(minRole)
+    const invitedByEmail = session.user.email
 
     const token = generateInviteToken()
     const tokenHash = sha256(token)
     const now = new Date()
     const expiredAt = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
+    
 
     
     const invitationQuery = await prisma.staffInvitation.create({
@@ -39,7 +42,14 @@ export async function createInvitation(email: string , role : StaffRoles){
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const inviteUrl = `${baseUrl}/admin/acceptance?token=${token}`;
 
-
+        await resend.emails.send({
+            from: process.env.RESEND_FROM_EMAIL as string,
+            to:targetEmail,
+            subject:"Invitation ELEVATE",
+            react: StaffInvitationEmail({
+                invitedByEmail, inviteUrl
+            })
+        })
 
     return {token, inviteUrl, invitationQueryId : invitationQuery.id}
 }

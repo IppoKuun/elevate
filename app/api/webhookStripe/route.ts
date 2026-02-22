@@ -67,7 +67,7 @@ export default async function POST(req : NextRequest){
         const customerEmail = session.customer_details?.email
         const customerName = session.customer_details?.name
         if (valide){
-            resend.emails.send({
+           await resend.emails.send({
                 from:`${process.env.RESEND_FROM_EMAIL}`,
                 to: customerEmail,
                 subject: `Accès à ${valide.course.title}`,
