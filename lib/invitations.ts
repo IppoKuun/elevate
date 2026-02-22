@@ -4,6 +4,7 @@ import { generateInviteToken, sha256 } from "@/tokens"
 import { prisma } from "./db/prisma"
 import getSession from "./session"
 import AppError from "./error"
+import { resend } from "./resend"
 
 function normalizedEmail(email : string){
     return email.toLocaleLowerCase().trim()
@@ -21,7 +22,7 @@ export async function createInvitation(email: string , role : StaffRoles){
     if (role === "OWNER") throw new AppError("VOUS NE POUVEZ PAS MODIFIER OWNER")
 
     const minRole = requireRoleToInvite(role)
-    const {staff, session} = await requireStaffRole(minRole)
+    const {staff} = await requireStaffRole(minRole)
 
     const token = generateInviteToken()
     const tokenHash = sha256(token)
@@ -37,6 +38,8 @@ export async function createInvitation(email: string , role : StaffRoles){
     })
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const inviteUrl = `${baseUrl}/admin/acceptance?token=${token}`;
+
+
 
     return {token, inviteUrl, invitationQueryId : invitationQuery.id}
 }

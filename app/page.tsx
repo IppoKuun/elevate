@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 export default async function Home() {
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 text-slate-100 flex items-center justify-center px-6">
       <div className="max-w-3xl w-full bg-white/5 border border-white/10 backdrop-blur-md rounded-2xl p-10 shadow-xl space-y-6">
@@ -11,7 +12,6 @@ export default async function Home() {
             Le produit est en cours de câblage (auth, invitations, tableau de bord). Revenez très vite ou accédez déjà aux pages internes si vous êtes membre de l’équipe.
           </p>
         </div>
-
         <div className="flex flex-wrap gap-3">
           <Link
             href="/admin/login"

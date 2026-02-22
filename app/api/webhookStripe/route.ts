@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/db/prisma";
+import { resend } from "@/lib/resend";
 import { stripe } from "@/lib/stripe";
+import StripeWelcomeEmail from "@/react-email-starter/emails/stripe-welcome";
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
@@ -42,24 +44,39 @@ export default async function POST(req : NextRequest){
 
     const session = event.data.object as Stripe.Checkout.Session
     if (event.type === "checkout.session.completed"){
-        const {userId, coursId} = session.metadata ?? {}
+        const {userId} = session.metadata ?? {}
 
         const cours = await prisma.coursePurchase.findUnique({
             where : {
                 stripeCheckoutSessionId : session.id
             }
         })
-        if(!cours) NextResponse.json({
+        if(!cours)
+            return NextResponse.json({
             message: "[WEBHOOK ROUTE] : Event créer mais session stripe introuvable", 
             status:400
         })
 
-        await prisma.coursePurchase.update({
+       const valide = await prisma.coursePurchase.update({
             where:{stripeCheckoutSessionId : session.id}, 
             data:{ status: "PAID",
                 paidAt: new Date(), authUserId:userId, stripePaymentIntentId: session.payment_intent as string
-             }
+             },
+             include:{course: true}
         })
+        const customerEmail = session.customer_details?.email
+        const customerName = session.customer_details?.name
+        if (valide){
+            resend.emails.send({
+                from:`${process.env.RESEND_FROM_EMAIL}`,
+                to: customerEmail,
+                subject: `Accès à ${valide.course.title}`,
+                react: StripeWelcomeEmail({ 
+                    userName: customerName, 
+                    courseTitle: valide.course.title
+                }),
+            })
+        }
 
         await prisma.webhookEvent.update({
             where:{eventId: event.id},
