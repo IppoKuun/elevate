@@ -6,16 +6,24 @@ import { authClient } from "@/lib/auth-client"
 export default function forgotPassword(){
     const [email, setEmail] = useState<string>("")
     const [sent, setSent] = useState(false)
+    const [loading, setLoading] = useState(false)
 
     const handleSubmit = async (e : React.FormEvent) => {
         e.preventDefault()
+        setLoading(true)
+        const appURL = process.env.NEXT_PUBLIC_APP_URL || window.location.origin
         await authClient.requestPasswordReset({
-            email, redirectTo:"/reset-password"
+            email,
+            redirectTo: `${appURL}/reset-password`
         }, {
             onSuccess : () => {
+                setSent(true)
                 toast.success("L'email de reinitialisation a bien été envoyé.")
             }, onError: (ctx) => {
                 toast.error(ctx.error.message)
+            },
+            onResponse: () => {
+                setLoading(false)
             }
         })
     }
@@ -28,14 +36,20 @@ export default function forgotPassword(){
                     <input 
                     required
                     value={email}
+                    type="email"
                     placeholder="monadressmail@gmail.com"
                     onChange={(e) => setEmail(e.target.value)}
                     className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition"
                     ></input>
                 </div>
-                <button className="bg-blue-500 hover:bg-blue-600 px-6 rounded-xl mt-8 py-3 w-full text-lg cursor-pointer text-white font-semibold transition">
-                    Envoyez
+                <button disabled={loading} className="bg-blue-500 hover:bg-blue-600 px-6 rounded-xl mt-8 py-3 w-full text-lg cursor-pointer text-white font-semibold transition disabled:opacity-70">
+                    {loading ? "Envoi..." : "Envoyez"}
                 </button>
+                {sent && (
+                    <p className="mt-4 text-sm text-slate-600 text-center">
+                        Si l'email existe, un lien de reinitialisation vient d'etre envoye.
+                    </p>
+                )}
 
             </form>
         </main>
