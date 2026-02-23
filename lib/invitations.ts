@@ -25,7 +25,7 @@ export async function createInvitation(email: string , role : StaffRoles){
     
      const target = session?.user.id ?? (await headers()).get("x-forwarded-for")?.split(",")[0]
      const key = `staffInvitation : ${target}`
-    const limit = await rateLimits(key, 5, 60*60*1000)
+    const limit = await rateLimits(key, 5, 60*60*24)
     const targetEmail = normalizedEmail(email);
     if (role === "OWNER") throw new AppError("VOUS NE POUVEZ PAS MODIFIER OWNER")
 

@@ -30,7 +30,7 @@ export default async function checkoutSession(coursId: string){
     const stripeSession = await stripe.checkout.sessions.create({
         customer_email: userSession.user.email || undefined,
         mode:"payment",
-        success_url:`${baseURL}/cours${coursId}`,
+        success_url:`${baseURL}/cours/${coursId}`,
         cancel_url:`${baseURL}/checkout`,
         metadata : {    
             coursId, userId: userSession.user.id

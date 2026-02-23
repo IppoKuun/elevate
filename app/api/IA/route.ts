@@ -5,12 +5,13 @@ import AppError from "@/lib/error";
 import rateLimits from "@/lib/redisRateLimits";
 import { headers } from 'next/headers';   
 import getSession from "@/lib/session";
-import { error } from "console";
 
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export async function POST(req: Request) {
   const session = await getSession()
+      await requireStaffRole("ADMIN");
+
   try {
     if (!client || !process.env.OPENAI_API_KEY) {
             console.error("PAS DE CLE OPEN AI")
@@ -19,15 +20,15 @@ export async function POST(req: Request) {
     
          const target = session?.user.id ?? (await headers()).get("x-forwarded-for")?.split(",")[0]
          const key = `openAI : ${target}`
-        const limit = await rateLimits(key, 5, 60*60*1000)
+        const limit = await rateLimits(key, 5, 60*60*24)
         if (!limit.allowed){
           return NextResponse.json({
             userMsg:`Trop d'appel ChatGPT, veuillez ressayez ultérieurement ${limit.remaining}`, 
-            status:429
-        })
+        },
+      {status: 429}
+      )
         }  
 
-    await requireStaffRole("ADMIN");
     const body = await req.json();
     const title = typeof body.title === "string" ? body.title.trim() : "";
     const description = typeof body.description === "string" ? body.description.trim() : "";
@@ -57,13 +58,6 @@ export async function POST(req: Request) {
     const status = typeof (err as { status?: unknown })?.status === "number"
       ? (err as { status: number }).status
       : undefined;
-
-    if (status === 429) {
-      return NextResponse.json(
-        { error: "Le service IA est temporairement indisponible. Reessaie dans quelques minutes." },
-        { status: 503 }
-      );
-    }
 
     if (status === 401 || status === 403) {
       return NextResponse.json(
