@@ -74,6 +74,7 @@ export default function login(){
                     <label className="text-sm font-medium text-slate-700">Adresse Mail</label>
                     <input 
                     required
+                    value={email}
                     placeholder="monadressmail@gmail.com"
                     onChange={(e) => setEmail(e.target.value)}
                     className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition"
@@ -91,6 +92,7 @@ export default function login(){
                     required
                     placeholder="********"
                     type={show ? "text" : "password"}
+                    value={password}
                     onChange={(e) => setEmail(e.target.value)}
                     className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 pr-12 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition"
                     ></input>
