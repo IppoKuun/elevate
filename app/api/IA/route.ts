@@ -5,6 +5,7 @@ import AppError from "@/lib/error";
 import rateLimits from "@/lib/redisRateLimits";
 import { headers } from 'next/headers';   
 import getSession from "@/lib/session";
+import { error } from "console";
 
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -19,9 +20,11 @@ export async function POST(req: Request) {
          const target = session?.user.id ?? (await headers()).get("x-forwarded-for")?.split(",")[0]
          const key = `openAI : ${target}`
         const limit = await rateLimits(key, 5, 60*60*1000)
-    // A FIX METTRE NEXTREPONSE.JSON AVANT"
         if (!limit.allowed){
-          throw new AppError(`Trop d'appel ChatGPT, veuillez ressayez ultérieurement ${limit.remaining}`)
+          return NextResponse.json({
+            userMsg:`Trop d'appel ChatGPT, veuillez ressayez ultérieurement ${limit.remaining}`, 
+            status:429
+        })
         }  
 
     await requireStaffRole("ADMIN");
