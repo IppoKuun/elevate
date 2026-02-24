@@ -118,8 +118,7 @@ async function handleGenerate(e: React.MouseEvent<HTMLButtonElement>) {
       </div>
       <div className="w-full mt-5 mb-5">
         <label className="">Catégories</label>
-        <input type="hidden" name="categoryId" defaultValue={ coursToEdit?.category ?? ""}
-        value={selectedCat}
+        <input type="hidden" name="categoryId" value={ coursToEdit?.category ?? selectedCat}
         />
         <Listbox value={selectedCat} onChange={setSelectedCat}>
           <div className="relative mt-2 rounded-xl">
