@@ -22,25 +22,27 @@ const initialResult: CourseFormState = { ok: false, userMsg: "", error: {} };
 
 
 export default function CoursForm({ coursToEdit, onSucces }: CourFormProps) {
+
+        const cat = [  "DEVELOPMENT",
+      "DESIGN",
+      "BUSINESS",
+      "MARKETING",
+      "DATA_SCIENCE",
+      "IT_SOFTWARE",
+      "PERSONAL_DEVELOPMENT",
+      "PHOTOGRAPHY",
+      "MUSIC",
+      "LANGUAGE",
+      "HEALTH_FITNESS",
+      "FINANCE",
+      "LIFESTYLE",
+      "TEACHING",]
+
   const actionToUse = coursToEdit ? updateCourseAction : createCoursAction;
   const [result, formAction, pending] = useActionState<CourseFormState, FormData>(actionToUse, initialResult);
   const [generatedContent, setGeneratedContent] = useState(coursToEdit?.content ?? "");
   const [isGenerating, setIsGenerating] = useState(false);
-  const [selectedCat, setSelectedCat] = useState(null)
-  const cat = [  "DEVELOPMENT",
-  "DESIGN",
-  "BUSINESS",
-  "MARKETING",
-  "DATA_SCIENCE",
-  "IT_SOFTWARE",
-  "PERSONAL_DEVELOPMENT",
-  "PHOTOGRAPHY",
-  "MUSIC",
-  "LANGUAGE",
-  "HEALTH_FITNESS",
-  "FINANCE",
-  "LIFESTYLE",
-  "TEACHING",]
+  const [selectedCat, setSelectedCat] = useState(cat[0])
 
 async function handleGenerate(e: React.MouseEvent<HTMLButtonElement>) {
   const form = e.currentTarget.form;
@@ -114,9 +116,11 @@ async function handleGenerate(e: React.MouseEvent<HTMLButtonElement>) {
           className="w-full border-2 border-slate-200 rounded-xl p-2 text-sm h-24 focus:ring-2 focus:ring-black outline-none"
         />
       </div>
-      <div className="w-full mt-5">
+      <div className="w-full mt-5 mb-5">
         <label className="">Catégories</label>
-        <input type="hidden" name="categoryId" value={selectedCat} />
+        <input type="hidden" name="categoryId" defaultValue={ coursToEdit?.category ?? ""}
+        value={selectedCat}
+        />
         <Listbox value={selectedCat} onChange={setSelectedCat}>
           <div className="relative mt-2 rounded-xl">
             <Listbox.Button className="cursor-pointer w-full border border-slate-300 shadow-sm transition py-4 rounded-xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-200 transition " >

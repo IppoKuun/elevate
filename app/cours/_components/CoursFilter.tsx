@@ -22,19 +22,20 @@ export function CoursFilter() {
   }
 
   return (
-    <div className="flex flex-row justify-between p-6 gap-4 w-full">
-      <div className="relative border border-slate-300 focus-within:border-slate-700 flex items-center h-10 rounded-xl w-full max-w-md">
-        <Search className="absolute left-2" color="gray" size={18} />
+    <div className="w-full rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="flex w-full flex-col gap-3 md:flex-row md:items-center">
+        <div className="relative flex h-11 w-full items-center rounded-xl border border-slate-300 transition focus-within:border-slate-700 focus-within:ring-2 focus-within:ring-slate-100">
+        <Search className="absolute left-3 text-slate-500" size={18} />
         <input
           placeholder="Rechercher"
           defaultValue={searchParam.get("q")?.toString()}
           onChange={(e) => updateUrl("q", e.target.value)}
-          className="w-full border-none ml-8 outline-none focus:ring-0"
+          className="h-full w-full rounded-xl border-none bg-transparent pl-10 pr-3 text-sm text-slate-800 outline-none focus:ring-0"
         />
       </div>
 
       <select
-        className="border rounded px-2"
+        className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-800 outline-none transition focus:border-slate-700 focus:ring-2 focus:ring-slate-100"
         value={searchParam.get("type") ?? ""}
         onChange={(e) => updateUrl("type", e.target.value)}
       >
@@ -44,13 +45,14 @@ export function CoursFilter() {
       </select>
 
       <select
-        className="border rounded px-2"
+        className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-800 outline-none transition focus:border-slate-700 focus:ring-2 focus:ring-slate-100"
         value={searchParam.get("sort") ?? "desc"}
         onChange={(e) => updateUrl("sort", e.target.value)}
       >
         <option value="desc">Recent</option>
         <option value="asc">Anciens</option>
       </select>
+      </div>
     </div>
   );
 }

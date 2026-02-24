@@ -18,7 +18,7 @@ export function CoursCard({ cours, isUnlocked }: CoursCardProps) {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:scale-105">
+    <article className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg">
       <Link href={`/cours/${cours.slug}`}>
         <div className="relative">
           <Image
@@ -26,36 +26,38 @@ export function CoursCard({ cours, isUnlocked }: CoursCardProps) {
             alt={cours.title}
             width={500}
             height={300}
-            className={`object-cover w-full h-48 ${
-              !isUnlocked ? "filter grayscale" : ""
+            className={`h-48 w-full object-cover transition duration-300 ${
+              !isUnlocked ? "grayscale" : "group-hover:scale-[1.02]"
             }`}
           />
           {!isUnlocked && (
-            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-              <Lock className="text-white w-12 h-12" />
+            <div className="absolute inset-0 flex items-center justify-center bg-black/45">
+              <Lock className="h-12 w-12 text-white" />
             </div>
           )}
         </div>
       </Link>
-      <div className="p-6">
-        <h2 className="text-xl font-bold mb-2">{cours.title}</h2>
-        <p className="text-gray-600 mb-4 line-clamp-2">{cours.description ?? "Aucune description."}</p>
-        <div className="flex justify-between items-center">
+      <div className="p-5">
+        <h2 className="line-clamp-2 text-lg font-semibold text-slate-900">{cours.title}</h2>
+        <p className="mt-2 line-clamp-2 text-sm text-slate-600">
+          {cours.description ?? "Aucune description."}
+        </p>
+        <div className="mt-4 flex items-center justify-between">
           {isUnlocked ? (
             <Link href={`/cours/${cours.slug}`} className="w-full">
-              <button className="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded-md cursor-pointer">
+              <button className="w-full cursor-pointer rounded-xl bg-blue-600 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-500">
                 Accéder
               </button>
             </Link>
           ) : (
             <div className="w-full">
-              <p className="text-lg font-semibold mb-2 text-center">
+              <p className="mb-2 text-center text-lg font-semibold text-slate-800">
                 {(cours.priceCents ?? 0) / 100} €
               </p>
               <form action={handleCheckout} className="w-full">
                 <button
                   type="submit"
-                  className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-md cursor-pointer"
+                  className="w-full cursor-pointer rounded-xl bg-blue-600 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-500"
                 >
                   Débloquer ce cours
                 </button>
@@ -64,18 +66,18 @@ export function CoursCard({ cours, isUnlocked }: CoursCardProps) {
           )}
         </div>
       </div>
-    </div>
+    </article>
   );
 }
 
 export function CoursCardSkeleton() {
     return (
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        <div className="w-full h-48 bg-gray-200 animate-pulse" />
+      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="h-48 w-full animate-pulse bg-slate-200" />
         <div className="p-6">
-          <div className="h-6 w-3/4 mb-2 bg-gray-200 animate-pulse" />
-          <div className="h-4 w-full mb-4 bg-gray-200 animate-pulse" />
-          <div className="h-10 w-full bg-gray-200 animate-pulse" />
+          <div className="mb-2 h-6 w-3/4 animate-pulse bg-slate-200" />
+          <div className="mb-4 h-4 w-full animate-pulse bg-slate-200" />
+          <div className="h-10 w-full animate-pulse rounded-xl bg-slate-200" />
         </div>
       </div>
     );

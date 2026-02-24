@@ -46,18 +46,27 @@ export default async function CoursPage({ searchParams }: PageProps) {
   const purchasedCourseIds = new Set(userPurchases.map((p) => p.courseId));
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Tous les cours</h1>
-      <CoursFilter />
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {courses.map((cours) => (
-          <CoursCard
-            key={cours.id}
-            cours={cours}
-            isUnlocked={purchasedCourseIds.has(cours.id) || cours.isPaid !== true}
-          />
-        ))}
-      </div>
-    </div>
+    <main className="min-h-screen bg-slate-50">
+      <section className="mx-auto w-full max-w-7xl px-4 py-10 md:px-8">
+        <div className="mb-6">
+          <h1 className="text-3xl font-semibold tracking-tight text-slate-900 md:text-4xl">
+            Tous les cours
+          </h1>
+          <p className="mt-2 text-sm text-slate-600">
+            Explorez le catalogue et débloquez les contenus premium.
+          </p>
+        </div>
+        <CoursFilter />
+        <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+          {courses.map((cours) => (
+            <CoursCard
+              key={cours.id}
+              cours={cours}
+              isUnlocked={purchasedCourseIds.has(cours.id) || cours.isPaid !== true}
+            />
+          ))}
+        </div>
+      </section>
+    </main>
   );
 }
