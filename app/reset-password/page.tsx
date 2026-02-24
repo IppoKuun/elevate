@@ -17,7 +17,7 @@ export default function ResetPasswordPage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!token) {
-      toast.error("Token manquant ou invalide.");
+      toast.error("Token manquant ou invalide. Veuillez utilisez le lien envoyé dans votre boite mail");
       return;
     }
     if (newPassword.length < 8) {

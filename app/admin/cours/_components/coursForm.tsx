@@ -1,10 +1,12 @@
 "use client"
 
-import { useActionState, useEffect, useState } from "react"
+import { Fragment, useActionState, useEffect, useState } from "react"
 import { createCoursAction, updateCourseAction } from "../actions"
 import { toast } from "sonner"
 import { Course } from "@/app/type"
 import ImageUpload from "./ImageUpload"
+import { Listbox, Transition } from "@headlessui/react"
+
 type FormErrors = Record<string, string[] | undefined>;
 
 interface CourFormProps {
@@ -24,6 +26,21 @@ export default function CoursForm({ coursToEdit, onSucces }: CourFormProps) {
   const [result, formAction, pending] = useActionState<CourseFormState, FormData>(actionToUse, initialResult);
   const [generatedContent, setGeneratedContent] = useState(coursToEdit?.content ?? "");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [selectedCat, setSelectedCat] = useState(null)
+  const cat = [  "DEVELOPMENT",
+  "DESIGN",
+  "BUSINESS",
+  "MARKETING",
+  "DATA_SCIENCE",
+  "IT_SOFTWARE",
+  "PERSONAL_DEVELOPMENT",
+  "PHOTOGRAPHY",
+  "MUSIC",
+  "LANGUAGE",
+  "HEALTH_FITNESS",
+  "FINANCE",
+  "LIFESTYLE",
+  "TEACHING",]
 
 async function handleGenerate(e: React.MouseEvent<HTMLButtonElement>) {
   const form = e.currentTarget.form;
@@ -96,6 +113,31 @@ async function handleGenerate(e: React.MouseEvent<HTMLButtonElement>) {
           placeholder="Une petite phrase d'accroche..."
           className="w-full border-2 border-slate-200 rounded-xl p-2 text-sm h-24 focus:ring-2 focus:ring-black outline-none"
         />
+      </div>
+      <div className="w-full mt-5">
+        <label className="">Catégories</label>
+        <input type="hidden" name="categoryId" value={selectedCat} />
+        <Listbox value={selectedCat} onChange={setSelectedCat}>
+          <div className="relative mt-2 rounded-xl">
+            <Listbox.Button className="cursor-pointer w-full border border-slate-300 shadow-sm transition py-4 rounded-xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-200 transition " >
+              {selectedCat}
+            </Listbox.Button>
+            <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0" >
+              <Listbox.Options className="absolute z-10 overflow-hidden bg-white shadow focus:outline-none">
+                {cat.map((c) => (
+                  <Listbox.Option
+                  key={c}
+                  value={c}
+                  className="cursor-pointer select-none p-4 hover:bg-slate-100 bg-white rounded-xl  "
+                  >
+                   {c} 
+                  </Listbox.Option>
+                    ))}
+
+              </Listbox.Options>
+            </Transition>
+          </div>
+        </Listbox>
       </div>
       <div>
         <button type="button" disabled={isGenerating} onClick={handleGenerate} 

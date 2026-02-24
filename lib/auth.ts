@@ -29,7 +29,7 @@ export const auth =
           await resend.emails.send({
             from,
             to: user.email,
-            subject: "Reinitialisation de votre mot de passe",
+            subject: "Reinitialisation de votre  mot de passe",
             html: `
               <div style="font-family:Arial,sans-serif;line-height:1.5">
                 <h2>Reinitialisation du mot de passe</h2>
