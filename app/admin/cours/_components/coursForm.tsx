@@ -84,22 +84,22 @@ async function handleGenerate(e: React.MouseEvent<HTMLButtonElement>) {
   }, [result, onSucces]);
 
   return (
-    <form action={formAction} className="">
+    <form action={formAction} className="space-y-5">
       {coursToEdit && (
         <input name="id" value={coursToEdit.id} className="hidden" readOnly />
       )}
 
       <div>
-        <label className="block text-sm font-medium mb-1">Titre du cours</label>
+        <label className="mb-1 block text-sm font-medium text-slate-700">Titre du cours</label>
         <input
           name="title"
           defaultValue={coursToEdit?.title}
           placeholder="Ex: Apprendre Next.js en 3h"
-          className="w-full border rounded-xl border-2 border-slate-200  p-2 text-sm focus:ring-2 focus:ring-black outline-none"
+          className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
           required
         />
         {!result.ok && result.error?.title?.[0] && (
-          <p className="text-red-500 text-xs mt-1">{result.error.title[0]}</p>
+          <p className="mt-1 text-xs text-red-500">{result.error.title[0]}</p>
         )}
       </div>
       <ImageUpload
@@ -108,30 +108,30 @@ async function handleGenerate(e: React.MouseEvent<HTMLButtonElement>) {
       defaultValue={coursToEdit?.thumbnailUrl ?? ""}
       />
       <div>
-        <label className="block text-sm font-medium mb-1">Description courte</label>
+        <label className="mb-1 block text-sm font-medium text-slate-700">Description courte</label>
         <textarea
           name="description"
           defaultValue={coursToEdit?.description ?? ""}
           placeholder="Une petite phrase d'accroche..."
-          className="w-full border-2 border-slate-200 rounded-xl p-2 text-sm h-24 focus:ring-2 focus:ring-black outline-none"
+          className="h-24 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
         />
       </div>
-      <div className="w-full mt-5 mb-5">
-        <label className="">Catégories</label>
+      <div className="w-full">
+        <label className="mb-1 block text-sm font-medium text-slate-700">Categories</label>
         <input type="hidden" name="categoryId" value={ coursToEdit?.category ?? selectedCat}
         />
         <Listbox value={selectedCat} onChange={setSelectedCat}>
-          <div className="relative mt-2 rounded-xl">
-            <Listbox.Button className="cursor-pointer w-full border border-slate-300 shadow-sm transition py-4 rounded-xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-200 transition " >
+          <div className="relative mt-1">
+            <Listbox.Button className="w-full cursor-pointer rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-left text-sm text-slate-700 shadow-sm outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200">
               {selectedCat}
             </Listbox.Button>
             <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0" >
-              <Listbox.Options className="absolute z-10 overflow-hidden bg-white shadow focus:outline-none">
+              <Listbox.Options className="absolute z-10 mt-1 max-h-64 w-full overflow-auto rounded-xl border border-slate-200 bg-white py-1 shadow-lg focus:outline-none">
                 {cat.map((c) => (
                   <Listbox.Option
                   key={c}
                   value={c}
-                  className="cursor-pointer select-none p-4 hover:bg-slate-100 bg-white rounded-xl  "
+                  className="cursor-pointer select-none px-3 py-2 text-sm text-slate-700 transition hover:bg-slate-100"
                   >
                    {c} 
                   </Listbox.Option>
@@ -145,10 +145,10 @@ async function handleGenerate(e: React.MouseEvent<HTMLButtonElement>) {
       <div>
         <button type="button" disabled={isGenerating} onClick={handleGenerate} 
         
-      className="inline-flex items-center cursor-pointer justify-center rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
-        >Généré le cours avec l'IA </button>
+      className="inline-flex cursor-pointer items-center justify-center rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
+        >Generer le cours avec l'IA</button>
         <textarea 
-        className="w-full min-h-56 mt-2 rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm leading-6 text-slate-800 shadow-sm outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200 placeholder:text-slate-400"
+        className="mt-2 min-h-56 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm leading-6 text-slate-800 shadow-sm outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200 placeholder:text-slate-400"
 
         name="content"
         value={isGenerating ? "Patience, le cours est entrain de se généré..." : generatedContent }
@@ -156,36 +156,36 @@ async function handleGenerate(e: React.MouseEvent<HTMLButtonElement>) {
         ></textarea>
       </div>
 
-      <div className="flex gap-4">
+      <div className="grid gap-4 sm:grid-cols-2">
         <div className="flex-1">
-          <label className="block text-sm font-medium mb-1">Prix (en centimes)</label>
+          <label className="mb-1 block text-sm font-medium text-slate-700">Prix (en centimes)</label>
           <input
             name="priceCents"
             type="number"
             defaultValue={coursToEdit?.priceCents ?? 0}
-            className="w-full border rounded-md p-2 text-sm"
+            className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
           />
         </div>
 
-        <div className="flex items-center pt-6">
+        <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5">
           <input
             id="isPaid"
             name="isPaid"
             type="checkbox"
             defaultChecked={coursToEdit?.isPaid ?? false}
-            className="w-4 h-4 text-black border-gray-300 rounded focus:ring-black"
+            className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-700"
           />
-          <label htmlFor="isPaid" className="ml-2 text-sm text-gray-700">
+          <label htmlFor="isPaid" className="m-0 text-sm text-slate-700">
             Cours payant ?
           </label>
         </div>
       </div>
 
-      <div className="pt-4 flex justify-end">
+      <div className="flex justify-end pt-2">
         <button
           type="submit"
           disabled={pending}
-          className="bg-black text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-800 disabled:opacity-50 transition-all"
+          className="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {pending ? "Sauvegarde en cours..." : coursToEdit ? "Mettre a jour" : "Creer le cours"}
         </button>

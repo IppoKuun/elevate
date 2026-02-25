@@ -49,36 +49,52 @@ export default function InviteManager({inviteList, totalInvite}: inviteListProps
   
 
   return(
-    <div className="min-h-screen flex flex-col justify-center items-center">
+    <div className="w-full px-6 py-8 lg:px-10">
       {!result.ok && result.userMsg && (
-        <div key={errorKey}  className="div_err flash">
+        <div
+          key={errorKey}
+          className="div_err flash mx-auto mb-6 w-full max-w-3xl rounded-2xl border border-red-200 bg-red-50 p-4 text-base font-semibold text-red-700 shadow-sm"
+        >
           {result.userMsg}
         </div>
       )}
-      <form action={formAction} 
-      className="bg-white h-135 flex flex-col items-center  rounded shadow max-w-150 w-full px-4 "
+
+      <form
+        action={formAction}
+        className="mx-auto w-full max-w-3xl rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
       >
-        <h1 className="mt-5 text-3xl font-bold">Invitez un membres</h1>
-        <div className="self-start mt-15 w-full">
-          <label>Email</label>
-          <input className="w-full bg-slate-100 border-3 border-slate-200 rounded-xl py-2 focus: "
-          name="email" required type="email"placeholder="email@outlook.com" ></input>
+        <div className="mb-6 border-b border-slate-200 pb-4">
+          <h1 className="text-2xl font-semibold text-slate-900">Invitez un membre</h1>
+          <p className="mt-1 text-sm text-slate-500">
+            Envoyez une invitation sécurisée à un nouvel administrateur ou lecteur.
+          </p>
         </div>
-        
-        <div className="self-start mt-15 w-full">
+
+        <div className="mb-5 w-full">
+          <label>Email</label>
+          <input
+            className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+            name="email"
+            required
+            type="email"
+            placeholder="email@outlook.com"
+          />
+        </div>
+
+        <div className="mb-4 w-full">
           <label>Role</label>
           <Listbox value={selectedRole} onChange={setSelectedRole} name="role">
             <div className="relative mt-2">
-              <Listbox.Button className="w-full cursor-pointer rounded-xl border border-slate-300 bg-white py-2 pl-3 pr-8 text-left shadow-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-100 transition">
+              <Listbox.Button className="w-full cursor-pointer rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-left text-sm text-slate-700 shadow-sm outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200">
                 {selectedRole}
               </Listbox.Button>
               <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
-                <Listbox.Options className="absolute z-10 mt-1 w-full overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg focus:outline-none">
+                <Listbox.Options className="absolute z-10 mt-1 w-full overflow-hidden rounded-xl border border-slate-200 bg-white py-1 shadow-lg focus:outline-none">
                   {roles.map((role) => (
                     <Listbox.Option
                       key={role}
                       value={role}
-                      className="cursor-pointer select-none py-2 px-3 hover:bg-slate-100"
+                      className="cursor-pointer select-none px-3 py-2 text-sm text-slate-700 transition hover:bg-slate-100"
                     >
                       {role}
                     </Listbox.Option>
@@ -88,35 +104,64 @@ export default function InviteManager({inviteList, totalInvite}: inviteListProps
             </div>
           </Listbox>
         </div>
-        <p>Le lien valable pendant 3 jour par mesure de sécurité.</p>
+        <p className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+          Le lien est valable pendant 3 jours pour des raisons de securite.
+        </p>
 
-        <button className="w-60 rounded-xl hover:bg-blue-900 transition duration-400 text-white p-4 cursor-pointer text-2xl font-bold mt-20 bg-blue-500">{pending ? "Envoie en cours...": "Envoyez"}</button>
+        <div className="mt-6 flex justify-end">
+          <button
+            className="inline-flex min-w-44 cursor-pointer items-center justify-center rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {pending ? "Envoi en cours..." : "Envoyer l'invitation"}
+          </button>
+        </div>
       </form>
 
       {result.ok && (
-        <Transition show={open}>
+        <Transition appear show={open}>
           <Dialog onClose={() => setOpen(false)} className="relative z-50">
 
             {/* Backdrop */}
-            <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+            <div className="fixed inset-0 bg-slate-900/40" aria-hidden="true" />
 
             {/* Conteneur centré */}
             <div className="fixed inset-0 flex items-center justify-center p-4">
 
-              <Dialog.Panel className="bg-white rounded-xl p-6 shadow-xl max-w-md w-full">
-                <Dialog.Title className="text-lg font-semibold">
+              <Dialog.Panel className="w-full max-w-xl rounded-2xl border border-slate-200 bg-white p-6 shadow-xl">
+                <Dialog.Title className="text-lg font-semibold text-slate-900">
                   Invitation Créée
                 </Dialog.Title>
 
-                <Dialog.Description className="text-sm text-slate-600 mt-1">
+                <Dialog.Description className="mt-1 text-sm text-slate-600">
                   Veuillez copier le lien ci-dessous
                 </Dialog.Description>
-                    <code>{result.inviteUrl}</code>
-                <div className="flex flex-row gap-2 mt-4">
-                  <TriangleAlert />
+
+                <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
+                  <code className="break-all">{result.inviteUrl}</code>
+                </div>
+
+                <div className="mt-4 flex flex-row gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3">
+                  <TriangleAlert className="mt-0.5 shrink-0 text-amber-700" size={16} />
                   <p className="text-sm text-slate-700">
                     Attention, ce lien est <strong>secret.</strong> Vous devez le partager uniquement à la personne dédiée car il contient le <strong>token d'invitation</strong>.
                   </p>
+                </div>
+
+                <div className="mt-5 flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setOpen(false)}
+                    className="rounded-xl border border-slate-300 px-3 py-2 text-sm text-slate-700 transition hover:bg-slate-100"
+                  >
+                    Fermer
+                  </button>
+                  <button
+                    type="button"
+                    onClick={copiedUrl}
+                    className="rounded-xl bg-slate-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-slate-700"
+                  >
+                    {copied ? "Copie !" : "Copier le lien"}
+                  </button>
                 </div>
               </Dialog.Panel>
 

@@ -36,7 +36,7 @@ body {
 }
 
 @layer base {
-  main {@apply min-h-screen flex flex-col justify-center items-center}
+  main {@apply flex flex-col justify-center items-center}
   h1 { @apply text-3xl font-bold tracking-tight text-slate-900; }
   h2 { @apply text-2xl font-semibold tracking-tight text-slate-800; }
   p  { @apply text-base leading-relaxed }

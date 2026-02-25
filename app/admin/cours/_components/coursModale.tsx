@@ -23,7 +23,7 @@ export default function CoursModale({ isOpen, onClose, courseToEdit, onSucces }:
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+          <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-[2px]" aria-hidden="true" />
         </Transition.Child>
 
         <div className="fixed inset-0 overflow-y-auto">
@@ -36,10 +36,13 @@ export default function CoursModale({ isOpen, onClose, courseToEdit, onSucces }:
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                <Dialog.Title as="h3" className="text-lg font-medium text-gray-900 mb-4">
+              <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 text-left align-middle shadow-xl transition-all">
+                <Dialog.Title as="h3" className="mb-1 text-xl font-semibold text-slate-900">
                   {courseToEdit ? "Modifier le cours" : "Créer un nouveau cours"}
                 </Dialog.Title>
+                <p className="mb-5 text-sm text-slate-500">
+                  {courseToEdit ? "Mets à jour les informations du cours." : "Renseigne les informations du nouveau cours."}
+                </p>
                 <CoursForm coursToEdit={courseToEdit} onSucces={onSucces} />
               </Dialog.Panel>
             </Transition.Child>

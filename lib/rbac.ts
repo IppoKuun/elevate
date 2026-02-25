@@ -2,6 +2,7 @@ import "server-only"
 import getSession from "./session"
 import { prisma } from "./db/prisma"
 import AppError from "./error"
+import { cache } from "react"
 type StaffRole = "OWNER" | "ADMIN" | "VIEWER" | "TEST"
 
 const ROLE_RANK: Record<StaffRole, Number> = {
@@ -16,16 +17,21 @@ function haveRight(role : StaffRole, required: StaffRole){
     return ROLE_RANK[role] >= ROLE_RANK[required]
 }
 
+export const getStaffProfileByUserId = cache(async (userId: string) => {
+    const user = prisma.staffProfile.findUnique({
+        where: { userId }
+    })
+    return user
+})
+
 
 
 export async function getStaffProfile() {
     const session = await getSession()
     const id = session?.user.id 
+    if (!id) return null
 
-    const staff = await prisma.staffProfile.findUnique({
-        where: {userId : id}
-    })
-    return staff
+    return getStaffProfileByUserId(id)
 }
 
 export async function isStaff(){
@@ -35,7 +41,7 @@ export async function isStaff(){
 export async function requireStaff(){
     const session = await getSession() 
     if (!session) throw new AppError("NON CONNECTER")
-    const  staff  = await getStaffProfile()
+    const  staff  = await getStaffProfileByUserId(session.user.id)
     if (!staff) throw new AppError("ACCES REFUSE")
     return {session, staff}
 }
