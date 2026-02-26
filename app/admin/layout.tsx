@@ -1,10 +1,10 @@
 import getSession from "@/lib/session";
 import React from "react";
 import { redirect } from "next/navigation";
-import { Book, LayoutDashboard, SquareUserRound, UserPlus } from "lucide-react";
-import Link from "next/link";
+import { SquareUserRound } from "lucide-react";
 import Image from "next/image";
 import { getStaffProfile } from "@/lib/rbac";
+import AdminNav from "./_components/AdminNav";
 
 export default async function AdminLayout({children} :  {children : React.ReactNode}){
     const session = await getSession();
@@ -18,12 +18,6 @@ export default async function AdminLayout({children} :  {children : React.ReactN
     const staff = await getStaffProfile()
 
 
-    const navLinks = [
-        {name:"Dashboard", href: "/admin/dashboard", icon : LayoutDashboard },
-        {name:"Cours", href : "/admin/cours", icon : Book},
-        {name: "Invite", href: "/admin/invite", icon: UserPlus}
-    ]
-    
 return(
     <div className="flex h-screen overflow-hidden">
         <aside className="flex w-72 flex-col bg-slate-100 items-center shrink-0">
@@ -35,22 +29,7 @@ return(
             className="self-center"
             />
 
-            <nav className="mt-20 gap-4 w-full px-4 space-y-4 p-4">
-                {navLinks.map((link) => {
-                const Icon = link.icon
-
-                return(
-                    <Link 
-                    key={link.name}
-                    href={link.href}
-                    className="group flex items-center gap-2 w-full rounded-xl px-3 py-2 text-slate-700 hover:bg-slate-600 hover:text-white transition-colors"
-                    >
-                        <Icon className=""/>
-                        <span className="">{link.name}</span>
-                    </Link>
-                )
-                })}
-            </nav>
+            <AdminNav />
 
             <div className="mt-auto w-full border-t border-slate-200 p-4">
                 <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
