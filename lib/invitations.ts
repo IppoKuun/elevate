@@ -94,13 +94,13 @@ export async function acceptInvitation (token : string){
         })
     
     
-        await tx.staffInvitation.update({
+        const invite = await tx.staffInvitation.update({
             where : { id :searchInvitation.id},
             data : {
                 acceptedAt: now,
                 acceptedByUserId: session.user.id
             }
         })
-        return true
+        return {invite}
     })
 }

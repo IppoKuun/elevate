@@ -6,7 +6,7 @@ type logsParams = {
     action : string,
     entityType :  "COURS" | "STAFF",
     entityId : string,
-    metadata : any
+    metadata? : any
 }
 
 export default async function createLogs({action, entityType, entityId, metadata} : logsParams){

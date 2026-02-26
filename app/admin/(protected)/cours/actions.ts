@@ -6,6 +6,7 @@ import { CourSchema } from "@/lib/validations";
 import { revalidatePath } from "next/cache";
 import { uploadCloudinary } from "@/lib/cloudinary.config";
 import {v2 as cloudinary } from "cloudinary"
+import createLogs from "@/lib/newLogs";
 
 export async function generateUniqueSlug(title: string, id?:string){
     const baseSlug = slugify(title)
@@ -53,6 +54,8 @@ export async function createCoursAction(prevData: unknown, formData: FormData){
     if (!create) return {ok:false, userMsg :" Impossible de créer le cours" }
     revalidatePath("/admin/cours")
 
+    await createLogs({action : "Cours créer", entityType:"COURS" , entityId: create.id })
+
     return {ok:true, secure_url, public_id}
 
 
@@ -84,6 +87,13 @@ export async function updateCourseAction(prevData:unknown, formData: FormData){
     if (!updated) return{
         ok:false, userMsg: "Impossible d'enregistrer dans la base de données la modifications"
     }
+
+    await createLogs({
+      action: "Cours modifié",
+      entityType: "COURS",
+      entityId: updated.id,
+    })
+
     return {ok:true, update: true}
 }
 
@@ -98,7 +108,14 @@ export async function deleteCoursAction(id: string){
     })
     
     if (!deleted) return {ok:false, userMsg:"Impossible d'enregistrer la suppression dans la base de données."}
-            return {ok: true}
+
+    await createLogs({
+      action: "Cours supprimé",
+      entityType: "COURS",
+      entityId: deleted.id,
+    })
+
+    return {ok: true}
 }
 
 export async function deleteImage(publicId: string) {

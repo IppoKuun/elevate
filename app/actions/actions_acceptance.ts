@@ -1,6 +1,8 @@
 "use server"
+import { prisma } from "@/lib/db/prisma";
 import  AppError  from "@/lib/error"
 import { acceptInvitation } from "@/lib/invitations"
+import createLogs from "@/lib/newLogs";
 
 export default async function acceptanceAction(prevState: unknown, formData: FormData) {
   try {
@@ -9,7 +11,11 @@ export default async function acceptanceAction(prevState: unknown, formData: For
       return { ok: false, userMsg: "Lien invalide ou Token manquant." }; // pas de throw ici
     }
 
-    await acceptInvitation(token);
+    const ok = await acceptInvitation(token);
+    if (ok){
+       await createLogs({ action: "Inivitation Accepté" , entityType:"STAFF" , entityId : ok.invite.id,   })
+    }
+
     return { ok: true };
   } catch (err: any) {
     console.error("[servAction] acceptance error", err);

@@ -5,6 +5,7 @@ import  AppError  from "@/lib/error";
 import { StaffRoles } from "@prisma/client";
 import { z } from "zod";
 import { prisma } from "@/lib/db/prisma";
+import createLogs from "@/lib/newLogs";
 
 const schema = z.object ({
     email : z.string(),
@@ -24,6 +25,11 @@ export async function inviteStaffAction (prevState: unknown, formData : FormData
 
     try{
         const result = await createInvitation(email, role)
+        await createLogs({
+          action: "Invitation lancée",
+          entityType: "STAFF",
+          entityId: result.invitationQueryId,
+        })
         return {ok:true, token :result.token, email, role, inviteUrl: result.inviteUrl };
     }catch (err : any){
       console.error(err);
@@ -45,6 +51,12 @@ export async function revokedAction(id: string){
   if (!revoke) {
     return {ok: false, userMsg: "Impossible de revoker l'invitations"}
   }
+
+  await createLogs({
+    action: "Invitation révoquée",
+    entityType: "STAFF",
+    entityId: revoke.id,
+  })
 
   return {ok: true}
 }
