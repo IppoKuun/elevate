@@ -4,6 +4,7 @@ import { createInvitation } from "@/lib/invitations";
 import  AppError  from "@/lib/error";
 import { StaffRoles } from "@prisma/client";
 import { z } from "zod";
+import { prisma } from "@/lib/db/prisma";
 
 const schema = z.object ({
     email : z.string(),
@@ -31,4 +32,13 @@ export async function inviteStaffAction (prevState: unknown, formData : FormData
       }
       return { ok: false, userMsg: "Erreur serveur." }
     }
+}
+
+export async function revokedAction(id: string){
+  await prisma.staffInvitation.update({
+    where: {id},
+    data: {
+      revokeAt: new Date()
+    }
+  })
 }

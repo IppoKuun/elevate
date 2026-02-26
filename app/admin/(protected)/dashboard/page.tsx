@@ -13,10 +13,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
     redirect("/admin/login"); // Pas de session ? Retour au login
   }
 
-  // Auto-crée le staff profile pour l'owner (Better Auth ne crée que les tables auth.*)
-  if (process.env.OWNER_EMAIL && session.user.email === process.env.OWNER_EMAIL) {
-    await bootstrapOwner();
-  }
+
 
   return (
     <section>

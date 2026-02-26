@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { SquareUserRound } from "lucide-react";
 import Image from "next/image";
 import { getStaffProfile } from "@/lib/rbac";
-import AdminNav from "./_components/AdminNav";
+import AdminNav from "../_components/AdminNav";
 
 export default async function AdminLayout({children} :  {children : React.ReactNode}){
     const session = await getSession();

@@ -1,5 +1,5 @@
 "use client"
-import { inviteStaffAction } from "@/app/admin/invite/action" 
+import { inviteStaffAction } from "@/app/admin/(protected)/invite/action" 
 import { useActionState, useEffect, useState, Fragment } from "react"
 import { Listbox, Transition, Dialog } from "@headlessui/react"
 import { TriangleAlert } from "lucide-react"
