@@ -114,7 +114,7 @@ model AuditLog {
   metadata        Json?
   createdAt       DateTime @default(now())
 
-  @@index([action])
+  @@index([entityType])
   @@index([actorAuthUserId])
   @@index([createdAt])
   @@map("audit_log")
