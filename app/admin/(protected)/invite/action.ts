@@ -35,10 +35,16 @@ export async function inviteStaffAction (prevState: unknown, formData : FormData
 }
 
 export async function revokedAction(id: string){
-  await prisma.staffInvitation.update({
+  const revoke = await prisma.staffInvitation.update({
     where: {id},
     data: {
       revokeAt: new Date()
     }
   })
+
+  if (!revoke) {
+    return {ok: false, userMsg: "Impossible de revoker l'invitations"}
+  }
+
+  return {ok: true}
 }

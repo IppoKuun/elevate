@@ -3,7 +3,7 @@ import InviteManager from "./_components/InviteManager"
 import { requireStaffRole } from "@/lib/rbac"
 
 export default async function(){
-  const { staff } = await requireStaffRole("ADMIN")
+  const { session } = await requireStaffRole("ADMIN")
   
        const [invite, totalInvite] = await Promise.all([
         prisma.staffInvitation.findMany({
