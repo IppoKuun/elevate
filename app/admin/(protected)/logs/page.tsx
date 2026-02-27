@@ -32,10 +32,8 @@ export default async function adminLogs({searchParams} : pageParamsProps) {
     if (!valid){
         return Router.push("/admin/login")
     } 
-
     const [logs, logsCount] = await Promise.all([
         prisma.auditLog.findMany({where, orderBy: {createdAt:"desc"}, 
-        include:{staffProfile}
         }),
         prisma.auditLog.count({where})
     ])

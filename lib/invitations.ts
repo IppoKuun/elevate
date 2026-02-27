@@ -61,7 +61,7 @@ export async function createInvitation(email: string , role : StaffRoles){
             })
         })
 
-    return {token, inviteUrl, invitationQueryId : invitationQuery.id}
+    return {token, inviteUrl, targetEmail : invitationQuery.email , invitationQueryId : invitationQuery.id}
 }
 
 
@@ -101,6 +101,6 @@ export async function acceptInvitation (token : string){
                 acceptedByUserId: session.user.id
             }
         })
-        return {invite}
+        return {invite, email}
     })
 }

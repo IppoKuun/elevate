@@ -7,6 +7,8 @@ import { revalidatePath } from "next/cache";
 import { uploadCloudinary } from "@/lib/cloudinary.config";
 import {v2 as cloudinary } from "cloudinary"
 import createLogs from "@/lib/newLogs";
+import Cours from "./page";
+import { before } from "node:test";
 
 export async function generateUniqueSlug(title: string, id?:string){
     const baseSlug = slugify(title)
@@ -54,7 +56,7 @@ export async function createCoursAction(prevData: unknown, formData: FormData){
     if (!create) return {ok:false, userMsg :" Impossible de créer le cours" }
     revalidatePath("/admin/cours")
 
-    await createLogs({action : "Cours créer", entityType:"COURS" , entityId: create.id })
+    await createLogs({action : "Cours créer", entityType:"COURS" , entityId: create.id, metadata: create.slug })
 
     return {ok:true, secure_url, public_id}
 
@@ -65,6 +67,7 @@ export async function createCoursAction(prevData: unknown, formData: FormData){
 
 export async function updateCourseAction(prevData:unknown, formData: FormData){
     await requireStaffRole("ADMIN")
+
     const raw = Object.fromEntries(formData.entries())
     const parsed = updateCourseSchema.safeParse({
         ...raw,
@@ -72,14 +75,19 @@ export async function updateCourseAction(prevData:unknown, formData: FormData){
         isPaid : raw.isPaid === "on"
     })
 
+
     if (!parsed.success) return {ok: false, error : parsed.error.flatten().fieldErrors}
 
+        const old = await prisma.cours.findFirst({
+        where: {id: parsed?.data.id}
+    })
     const {id, ...updateData} = parsed.data
 
     let newSlug = undefined
     if (updateData.title){
           newSlug = await generateUniqueSlug(updateData.title, id)
     }
+
 
     const updated = await prisma.cours.update({
         where: {id} , data: {...updateData, slug: newSlug}
@@ -92,6 +100,10 @@ export async function updateCourseAction(prevData:unknown, formData: FormData){
       action: "Cours modifié",
       entityType: "COURS",
       entityId: updated.id,
+      metadata: {diff :{
+        before:old,  
+        after: updated
+      }}
     })
 
     return {ok:true, update: true}
@@ -100,8 +112,18 @@ export async function updateCourseAction(prevData:unknown, formData: FormData){
 export async function deleteCoursAction(id: string){
       await requireStaffRole("ADMIN");
       // input: id
-    const cours = await prisma.cours.findUnique({ where: { id }, select: { thumbnailPublicId: true } });
+    const cours = await prisma.cours.findUnique({ where: { id }, });
     if (cours?.thumbnailPublicId) await deleteImage(cours.thumbnailPublicId);
+
+    if (cours){
+        await createLogs({
+      action: "Cours supprimé",
+      entityType: "COURS",
+      entityId: cours?.id,
+      metadata: cours?.title
+    })
+
+    }
 
     const deleted = await prisma.cours.delete({
         where: {id}
@@ -109,11 +131,7 @@ export async function deleteCoursAction(id: string){
     
     if (!deleted) return {ok:false, userMsg:"Impossible d'enregistrer la suppression dans la base de données."}
 
-    await createLogs({
-      action: "Cours supprimé",
-      entityType: "COURS",
-      entityId: deleted.id,
-    })
+
 
     return {ok: true}
 }

@@ -13,7 +13,7 @@ export default async function acceptanceAction(prevState: unknown, formData: For
 
     const ok = await acceptInvitation(token);
     if (ok){
-       await createLogs({ action: "Inivitation Accepté" , entityType:"STAFF" , entityId : ok.invite.id,   })
+       await createLogs({ action: "Inivitation Accepté" , entityType:"STAFF" , entityId : ok.invite.id, metadata: ok.email  })
     }
 
     return { ok: true };

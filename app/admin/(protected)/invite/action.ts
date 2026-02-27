@@ -29,6 +29,7 @@ export async function inviteStaffAction (prevState: unknown, formData : FormData
           action: "Invitation lancée",
           entityType: "STAFF",
           entityId: result.invitationQueryId,
+          metadata: result.targetEmail
         })
         return {ok:true, token :result.token, email, role, inviteUrl: result.inviteUrl };
     }catch (err : any){
@@ -56,6 +57,7 @@ export async function revokedAction(id: string){
     action: "Invitation révoquée",
     entityType: "STAFF",
     entityId: revoke.id,
+    metadata: revoke.email
   })
 
   return {ok: true}
