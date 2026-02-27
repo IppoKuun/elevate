@@ -1,7 +1,9 @@
 import { prisma } from "@/lib/db/prisma";
 import { requireStaffRole } from "@/lib/rbac";
 import { AuditLog, Prisma } from "@prisma/client";
+import { Limelight } from "next/font/google";
 import { useRouter } from "next/navigation";
+import LogsManager from "./_components/LogsManager.tsx"
 
 interface pageParamsProps {
     searchParams: Promise<{
@@ -25,17 +27,28 @@ export default async function adminLogs({searchParams} : pageParamsProps) {
     const where : Prisma.AuditLogWhereInput = {}
     if (type) where.entityType = type
     if(staff) where.actorAuthUserId = staff
-    const sortBy = sort === "asc" ? "desc"
+    const sortBy = sort === "asc" ? "asc" : "desc"
 
     const Router = useRouter()
     const valid = await requireStaffRole("ADMIN")
     if (!valid){
         return Router.push("/admin/login")
     } 
-    const [logs, logsCount] = await Promise.all([
-        prisma.auditLog.findMany({where, orderBy: {createdAt:"desc"}, 
+    const [logs, logsCount, allStaff] = await Promise.all([
+        prisma.auditLog.findMany({
+            where,
+            take: logsPerpages,
+            skip: (currentPage -1 )* logsPerpages,
+            orderBy: {createdAt: sortBy}
         }),
-        prisma.auditLog.count({where})
+        prisma.auditLog.count({where}),
+        prisma.staffProfile.findMany()
     ])
+
+    
+
+    const ttPages = Math.max(1, Math.ceil(logsCount/logsPerpages))
+
+    return <LogsManager ttPages={ttPages} allStaff={allStaff}  logs={logs} />
     
 }

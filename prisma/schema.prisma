@@ -15,6 +15,7 @@ model StaffProfile {
   role           StaffRoles        @default(VIEWER)
   userId         String            @unique
   InvitationSent StaffInvitation[] @relation("InvitedBy")
+  logs           AuditLog[]
 
   @@index([role])
   @@index([name])
@@ -113,6 +114,7 @@ model AuditLog {
   entityId        String?
   metadata        Json?
   createdAt       DateTime @default(now())
+  actor           StaffProfile? @relation(fields: [actorAuthUserId], references: [id])
 
   @@index([entityType])
   @@index([actorAuthUserId])

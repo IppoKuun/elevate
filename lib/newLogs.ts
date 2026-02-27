@@ -2,7 +2,7 @@ import { prisma } from "./db/prisma"
 import getSession from "./session"
 
 
-type logsParams = {
+export type logsParams = {
     action : string,
     entityType :  "COURS" | "STAFF",
     entityId : string,
