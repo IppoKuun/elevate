@@ -1,9 +1,8 @@
 import { prisma } from "@/lib/db/prisma";
 import { requireStaffRole } from "@/lib/rbac";
 import { AuditLog, Prisma } from "@prisma/client";
-import { Limelight } from "next/font/google";
-import { useRouter } from "next/navigation";
-import LogsManager from "./_components/LogsManager.tsx"
+import {redirect } from "next/navigation"
+import LogsManager from "./_components/LogsManager"
 
 interface pageParamsProps {
     searchParams: Promise<{
@@ -17,8 +16,8 @@ interface pageParamsProps {
 export default async function adminLogs({searchParams} : pageParamsProps) {
     const params = await searchParams
 
-    const page = Number(params.page)
-    const currentPage = Number(page ?? 1)
+    const page = params.page
+    const currentPage = page ? page : 1
     const type = params.type
     const staff = params.staff
     const sort = params.sort
@@ -29,10 +28,9 @@ export default async function adminLogs({searchParams} : pageParamsProps) {
     if(staff) where.actorAuthUserId = staff
     const sortBy = sort === "asc" ? "asc" : "desc"
 
-    const Router = useRouter()
     const valid = await requireStaffRole("ADMIN")
     if (!valid){
-        return Router.push("/admin/login")
+        return redirect("/admin/login")
     } 
     const [logs, logsCount, allStaff] = await Promise.all([
         prisma.auditLog.findMany({

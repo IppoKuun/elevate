@@ -1,19 +1,16 @@
 "use client"
 
-import {Logs, LogWithActor, staff} from "@/app/type"
+import { LogWithActor, staff } from "@/app/type"
 import { Listbox } from "@headlessui/react"
-import { router } from "better-auth/api"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { useState } from "react"
-import { logsParams } from "@/lib/newLogs"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import { Prisma } from "@prisma/client"
+import { useEffect } from "react"
+import page from "../../invite/page"
 
 interface LogsManagerProps {
-    ttPages: Number,
-    logs : LogWithActor[] ,
+    ttPages: number,
+    logs : LogWithActor[],
     allStaff : staff[],
-    logsParams?: logsParams,
     currentPage : number
 }
 
@@ -25,7 +22,6 @@ export default function LogsMangers({ttPages, logs, allStaff, currentPage} : Log
         const pathname = usePathname()
         const Router = useRouter()
 
-            const currentParams = Object.fromEntries(searchParams.entries())
             const currentStaff = searchParams.get("staff")
             const currentType = searchParams.get("type")
             const currentSort = searchParams.get("sort")
@@ -49,103 +45,129 @@ export default function LogsMangers({ttPages, logs, allStaff, currentPage} : Log
             Router.push(`${pathname}?${params.toString()}`)
         }
 
+        useEffect(()=> {
+            updateUrl("page", "1")
+        }, [currentStaff,currentType,  currentSort])
+
     return(
-        <section className="">
-            <h1 className="">Logs d'activité</h1>
-           <div className="flex flex-row justify-between">
-                <Listbox value={currentType} onChange={(val) => updateUrl("type", val)} >
-                    <Listbox.Button>
-                    </Listbox.Button>
-                    <Listbox.Options>
-                        <Listbox.Option
-                        value={"COURS"}
-                        >COURS</Listbox.Option>
-                        <Listbox.Option
-                        value={"STAFF"}
-                        >STAFF</Listbox.Option>
-                    </Listbox.Options>
-                </Listbox>
-                <Listbox value={currentStaff} onChange={(val) => updateUrl("staff", val)} >
-                    <Listbox.Button>
-                    </Listbox.Button>
-                    <Listbox.Options>
-                        {allStaff.map((s) => (
-                            <Listbox.Option
-                            key={s.id}
-                            value={s.userId}
-                            >
-                                {s.name}
-                            </Listbox.Option>
-                        ))}
-                    </Listbox.Options>
-                </Listbox>
-                <Listbox value={currentSort} onChange={(val) => updateUrl("sort", val)} >
-                    <Listbox.Button>
-                    </Listbox.Button>
-                    <Listbox.Options>
-                        <Listbox.Option value={"desc"}>
-                            Récent
-                        </Listbox.Option>
-                        <Listbox.Option value={"asc"}>
-                            Ancien
-                        </Listbox.Option>
-                    </Listbox.Options>
-                </Listbox>
-                <button
-                onClick={() => {
-                    updateUrl("", ""); Router.push(`$pathname`)}
-                }
-                >Reinitialisez les filtres</button>
+        <section className="w-full px-6 py-8 lg:px-10">
+            <h1 className="mb-6 text-2xl font-semibold text-slate-900">Logs d'activite</h1>
 
+            <div className="w-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <div className="grid gap-3 border-b border-slate-200 bg-slate-50/80 p-4 sm:grid-cols-2 lg:grid-cols-4">
+                    <div className="relative">
+                        <Listbox value={currentType} onChange={(val) => updateUrl("type", val)}>
+                            <Listbox.Button className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-left text-sm text-slate-700 outline-none transition focus:border-slate-500">
+                                {currentType ?? "Type d'entite"}
+                            </Listbox.Button>
+                            <Listbox.Options className="absolute z-10 mt-1 w-full overflow-hidden rounded-xl border border-slate-200 bg-white py-1 shadow-lg">
+                                <Listbox.Option className="cursor-pointer px-3 py-2 text-sm text-slate-700 hover:bg-slate-100" value={"COURS"}>
+                                    COURS
+                                </Listbox.Option>
+                                <Listbox.Option className="cursor-pointer px-3 py-2 text-sm text-slate-700 hover:bg-slate-100" value={"STAFF"}>
+                                    STAFF
+                                </Listbox.Option>
+                            </Listbox.Options>
+                        </Listbox>
+                    </div>
 
-                <table>
-                    <thead>
+                    <div className="relative">
+                        <Listbox value={currentStaff} onChange={(val) => updateUrl("staff", val)}>
+                            <Listbox.Button className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-left text-sm text-slate-700 outline-none transition focus:border-slate-500">
+                                {allStaff.find((s) => s.userId === currentStaff)?.name ?? "Auteur"}
+                            </Listbox.Button>
+                            <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-xl border border-slate-200 bg-white py-1 shadow-lg">
+                                {allStaff.map((s) => (
+                                    <Listbox.Option
+                                        key={s.id}
+                                        value={s.userId}
+                                        className="cursor-pointer px-3 py-2 text-sm text-slate-700 hover:bg-slate-100"
+                                    >
+                                        {s.name}
+                                    </Listbox.Option>
+                                ))}
+                            </Listbox.Options>
+                        </Listbox>
+                    </div>
+
+                    <div className="relative">
+                        <Listbox value={currentSort} onChange={(val) => updateUrl("sort", val)}>
+                            <Listbox.Button className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-left text-sm text-slate-700 outline-none transition focus:border-slate-500">
+                                {currentSort === "asc" ? "Ancien -> Recent" : "Recent -> Ancien"}
+                            </Listbox.Button>
+                            <Listbox.Options className="absolute z-10 mt-1 w-full overflow-hidden rounded-xl border border-slate-200 bg-white py-1 shadow-lg">
+                                <Listbox.Option className="cursor-pointer px-3 py-2 text-sm text-slate-700 hover:bg-slate-100" value={"desc"}>
+                                    Recent
+                                </Listbox.Option>
+                                <Listbox.Option className="cursor-pointer px-3 py-2 text-sm text-slate-700 hover:bg-slate-100" value={"asc"}>
+                                    Ancien
+                                </Listbox.Option>
+                            </Listbox.Options>
+                        </Listbox>
+                    </div>
+
+                    <button
+                        onClick={() => Router.push(pathname)}
+                        className="h-10 rounded-xl border border-slate-300 bg-white px-3 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+                    >
+                        Reinitialiser les filtres
+                    </button>
+                </div>
+
+                <table className="w-full border-collapse text-left text-sm">
+                    <thead className="bg-white text-slate-500">
                         <tr>
-                            <td>Date</td>
-                            <td>Autheur</td>
-                            <td>Actions</td>
-                            <td>Détails</td>
+                            <th className="px-4 py-3 font-medium">Date</th>
+                            <th className="px-4 py-3 font-medium">Auteur</th>
+                            <th className="px-4 py-3 font-medium">Action</th>
+                            <th className="px-4 py-3 font-medium">Type</th>
+                            <th className="px-4 py-3 font-medium">Details</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="divide-y divide-slate-100">
                         {logs.length === 0 ? (
-                            <td colSpan={4} className="" >Aucun logs enregistrée</td>
-                    ):(
-                        logs.map((log)=> (
-                            <tr key={log.id}>
-                                <td>{new Date(log.createdAt).toLocaleString()}</td>
-                                <td>{log.action}</td>
-                                <td>{log.actor?.name ?? "system"}</td>
-                                // fait moi un petit modale headless qui vas souvrir quand clique sur ce td en dessous car il contient des metadata donc je veux un petit modale avec du json brut quand on clique sur le voir les détails//
-                                <td>Voir les détail</td>
+                            <tr>
+                                <td colSpan={5} className="px-4 py-12 text-center text-sm text-slate-500">
+                                    Aucun logs enregistre
+                                </td>
                             </tr>
-                        ))
-                    )}
+                        ) : (
+                            logs.map((log) => (
+                                <tr key={log.id} className="transition hover:bg-slate-50/70">
+                                    <td className="px-4 py-3 text-slate-600">{new Date(log.createdAt).toLocaleString()}</td>
+                                    <td className="px-4 py-3 text-slate-700">{log.actor?.name ?? "system"}</td>
+                                    <td className="px-4 py-3 font-medium text-slate-800">{log.action}</td>
+                                    <td className="px-4 py-3 text-slate-600">{log.entityType ?? "-"}</td>
+                                    <td className="px-4 py-3 text-slate-600">{log.metadata ? "Metadata disponible" : "-"}</td>
+                                </tr>
+                            ))
+                        )}
                     </tbody>
-                    <div className="">
+                </table>
+
+                <div className="flex items-center justify-between border-t border-slate-200 bg-slate-50 px-4 py-3">
                     <button
                         disabled={currentPage <= 1}
                         onClick={() => updateUrl("page", String(currentPage - 1))}
-                        className=""
+                        className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         <ChevronLeft size={16} />
                         Precedent
                     </button>
 
-                    <span className="">
-                        Page {currentPage} / {Number(ttPages)}
+                    <span className="text-sm font-medium text-slate-700">
+                        Page {currentPage} / {ttPages}
                     </span>
 
                     <button
-                        disabled={Number(currentPage) >= Number(ttPages)}
+                        disabled={currentPage >= ttPages}
                         onClick={() => updateUrl("page", String(currentPage + 1))}
-                        className=""
+                        className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         Suivant <ChevronRight size={16} />
                     </button>
-                    </div>
-                </table>
-            </div> 
+                </div>
+            </div>
         </section>
     )
 }
