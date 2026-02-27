@@ -114,7 +114,7 @@ model AuditLog {
   entityId        String?
   metadata        Json?
   createdAt       DateTime @default(now())
-  actor           StaffProfile? @relation(fields: [actorAuthUserId], references: [id])
+  actor           StaffProfile? @relation(fields: [actorAuthUserId], references: [userId])
 
   @@index([entityType])
   @@index([actorAuthUserId])

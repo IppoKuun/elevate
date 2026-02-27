@@ -39,7 +39,10 @@ export default async function adminLogs({searchParams} : pageParamsProps) {
             where,
             take: logsPerpages,
             skip: (currentPage -1 )* logsPerpages,
-            orderBy: {createdAt: sortBy}
+            orderBy: {createdAt: sortBy}, 
+            include: {actor: {
+                select: {name:true, userId:true}
+            }}
         }),
         prisma.auditLog.count({where}),
         prisma.staffProfile.findMany()
@@ -49,6 +52,6 @@ export default async function adminLogs({searchParams} : pageParamsProps) {
 
     const ttPages = Math.max(1, Math.ceil(logsCount/logsPerpages))
 
-    return <LogsManager ttPages={ttPages} allStaff={allStaff}  logs={logs} />
+    return <LogsManager ttPages={ttPages} currentPage={currentPage}  allStaff={allStaff}  logs={logs} />
     
 }
