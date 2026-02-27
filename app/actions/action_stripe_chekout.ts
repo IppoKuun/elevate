@@ -53,7 +53,7 @@ export default async function checkoutSession(coursId: string){
     await prisma.coursePurchase.create({
         data:{
             authUserId : userSession.user.id,
-            courseId: coursToCheckout.id,            
+            coursId: coursToCheckout.id,            
             stripeCustomerId: stripeSession.customer as string,
             amountCents: Number(coursToCheckout.priceCents) ,
             status: "PENDING",

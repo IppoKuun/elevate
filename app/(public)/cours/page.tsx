@@ -39,11 +39,11 @@ export default async function CoursPage({ searchParams }: PageProps) {
           authUserId: session.user.id,
           status: "PAID",
         },
-        select: { courseId: true },
+        select: { coursId: true },
       })
     : [];
 
-  const purchasedCourseIds = new Set(userPurchases.map((p) => p.courseId));
+  const purchasedCourseIds = new Set(userPurchases.map((p) => p.coursId));
 
   return (
     <main className="min-h-screen bg-slate-50">

@@ -9,7 +9,7 @@ import InvitedList from "./invitedList"
 
 
 interface inviteListProps {
-    inviteList: StaffInvitation,
+    inviteList: StaffInvitation[],
     totalInvite: number
 }
 
@@ -36,7 +36,7 @@ export default function InviteManager({inviteList, totalInvite}: inviteListProps
 
   async function copiedUrl() {
     if (result.ok){
-          await navigator.clipboard.writeText(result.inviteUrl)
+          await navigator.clipboard.writeText(result.inviteUrl!)
           setTimeout(()=> {setCopied(true)}, 2000)
           setCopied(false)
     }

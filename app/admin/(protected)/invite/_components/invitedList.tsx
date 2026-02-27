@@ -13,7 +13,7 @@ interface invitedListProps {
 }
 
 export default function InvitedList({inviteList, totalInvite}: invitedListProps ){
-    const [inviteToRevoke, setInviteToRevoke] = useState<StaffInvitation |string | null>(null)
+    const [inviteToRevoke, setInviteToRevoke] = useState<StaffInvitation | null>(null)
 
     const handleRevok = async(id:string) => {
         const result = await revokedAction(id);
@@ -64,7 +64,7 @@ export default function InvitedList({inviteList, totalInvite}: invitedListProps 
                                     <td className="px-4 py-3 text-slate-500">Révoquer le :{invited.revokeAt.toLocaleString()}</td>
                                 ):(
                                     <button
-                                    onClick={() => setInviteToRevoke(invited.id)}
+                                    onClick={() => setInviteToRevoke(invited)}
                                     className="rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-medium text-red-700 transition hover:border-red-300 hover:bg-red-100"
                                     >
                                         Révoquer
@@ -81,7 +81,7 @@ export default function InvitedList({inviteList, totalInvite}: invitedListProps 
                 <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 p-4">
                     <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-xl">
                         <p className="mb-1 text-base font-semibold text-slate-900">Confirmer la révocation</p>
-                        <p className="mb-4 text-sm text-slate-600">Révoquer l'invitation pour "{inviteToRevoke.email}" ?</p>
+                        <p className="mb-4 text-sm text-slate-600">Révoquer l'invitation pour "{inviteToRevoke?.email}" ?</p>
                         <div className="flex justify-end gap-2">
                         <button
                             type="button"

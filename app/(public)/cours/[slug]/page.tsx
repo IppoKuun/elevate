@@ -29,7 +29,7 @@ export default async function CoursSlugPage({ params }: PageProps) {
     ? await prisma.coursePurchase.findFirst({
         where: {
           authUserId: session.user.id,
-          courseId: course.id,
+          coursId: course.id,
           status: "PAID",
         },
         select: { id: true },

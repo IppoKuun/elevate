@@ -4,9 +4,9 @@ import { useActionState } from "react";
 import acceptanceAction from "@/app/actions/actions_acceptance";
 
 
-type ActionResult = {ok:true; userMsg: string};
+type ActionResult = {ok:false; userMsg?: string} | {ok:true; userMsg:string} ;
 
-const initialResult = {ok:false}
+const initialResult : ActionResult = {ok:false}
 
 export function AcceptForm({ token, email }: { token: string; email: string }) {
   const [result, formAction, isPending] = useActionState(acceptanceAction, initialResult);

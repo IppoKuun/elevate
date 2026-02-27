@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { AcceptForm } from "../../../components/AcceptanceForm";
 import { prisma } from "@/lib/db/prisma";
 
-export default async function InvitePage({ searchParams }: { searchParams: Promise<{ token?: string }> }) {
+export default async function InvitePage({ searchParams }: { searchParams: Promise<{ token: string }> }) {
     const { token } = await searchParams;
     
 
@@ -26,7 +26,7 @@ export default async function InvitePage({ searchParams }: { searchParams: Promi
         <div className="flex flex-col items-center justify-center min-h-screen">
             <AcceptForm 
                 token={token} 
-                userSessionEmail={session.user.email} 
+                email={session.user.email} 
             />
         </div>
     );
