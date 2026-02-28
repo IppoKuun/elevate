@@ -80,7 +80,6 @@ model CoursePurchase {
 
   course                  Cours          @relation(fields: [coursId], references: [id], onDelete: Restrict)
 
-  @@unique([authUserId, coursId])
   @@index([authUserId])
   @@index([coursId])
   @@index([status])

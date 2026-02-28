@@ -7,11 +7,11 @@ import Stripe from "stripe";
 
 
 
-export default async function POST(req : NextRequest){
+export async function POST(req : NextRequest){
     const body = await req.text()
     const signature = req.headers.get("Stripe-signature") as string
 
-    let event 
+    let event: Stripe.Event
 
     try{
          event = stripe.webhooks.constructEvent(
@@ -20,30 +20,55 @@ export default async function POST(req : NextRequest){
     }catch (error: any){
         return NextResponse.json({
         message : "[WEBHOOK ROUTE] : Evenement webhook ne matchent pas", 
-        status : 400
+        }, {
+            status:400
         })
     }
 
     const existingEvent = await prisma.webhookEvent.findUnique({
         where : {
-            eventId: event.id
+            eventId: event.id,
         }
     })
 
-    if (existingEvent){
-        return NextResponse.json({message: "[WEBHOOK ROUTE] : Evennement déjà traité", 
+    if (existingEvent?.status === "PROCESSED" || existingEvent?.status === "IGNORED"){
+        return NextResponse.json({
+            message: "[WEBHOOK ROUTE] : Evennement deja traite",
+        }, {
             status: 200
         })
     }
 
-    await prisma.webhookEvent.create({
-        data:{
-            eventId: event.id, eventType : event.type, status:"RECEIVED", payload: event as any
-        }
-    })
+    if (!existingEvent) {
+        await prisma.webhookEvent.create({
+            data:{
+                eventId: event.id, eventType : event.type, status:"RECEIVED", payload: event as any
+            }
+        })
+    } else {
+        await prisma.webhookEvent.update({
+            where: { eventId: event.id },
+            data: {
+                status: "RECEIVED",
+                lastError: null,
+                attemptCount: { increment: 1 },
+            }
+        })
+    }
 
-    const session = event.data.object as Stripe.Checkout.Session
-    if (event.type === "checkout.session.completed"){
+    try {
+        if (event.type !== "checkout.session.completed") {
+            await prisma.webhookEvent.update({
+                where: { eventId: event.id },
+                data: {
+                    status: "IGNORED",
+                }
+            })
+
+            return NextResponse.json("IGNORED", { status: 200 })
+        }
+
+        const session = event.data.object as Stripe.Checkout.Session
         const {userId} = session.metadata ?? {}
 
         const cours = await prisma.coursePurchase.findUnique({
@@ -51,13 +76,11 @@ export default async function POST(req : NextRequest){
                 stripeCheckoutSessionId : session.id
             }
         })
-        if(!cours)
-            return NextResponse.json({
-            message: "[WEBHOOK ROUTE] : Event créer mais session stripe introuvable", 
-            status:400
-        })
+        if(!cours) {
+            throw new Error("[WEBHOOK ROUTE] : Session stripe introuvable")
+        }
 
-       const valide = await prisma.coursePurchase.update({
+        const valide = await prisma.coursePurchase.update({
             where:{stripeCheckoutSessionId : session.id}, 
             data:{ status: "PAID",
                 paidAt: new Date(), authUserId:userId, stripePaymentIntentId: session.payment_intent as string
@@ -67,7 +90,7 @@ export default async function POST(req : NextRequest){
         const customerEmail = session.customer_details?.email
         const customerName = session.customer_details?.name
         if (valide){
-           await resend.emails.send({
+           const { error } = await resend.emails.send({
                 from:`${process.env.RESEND_FROM_EMAIL}`,
                 to: customerEmail as string,
                 subject: `Accès à ${valide.course.title}`,
@@ -76,6 +99,10 @@ export default async function POST(req : NextRequest){
                     courseTitle: valide.course.title
                 }),
             })
+
+            if (error) {
+                throw new Error(error.message)
+            }
         }
 
         await prisma.webhookEvent.update({
@@ -84,7 +111,21 @@ export default async function POST(req : NextRequest){
                 status:"PROCESSED"
             }
         })
-    }
 
-    return NextResponse.json( 'OK', {status :200})
+        return NextResponse.json( 'OK', {status :200})
+    } catch (error: any) {
+        await prisma.webhookEvent.update({
+            where: { eventId: event.id },
+            data: {
+                status: "FAILED",
+                lastError: error?.message ?? "Erreur inconnue webhook Stripe",
+            }
+        })
+
+        return NextResponse.json({
+            message: error?.message ?? "[WEBHOOK ROUTE] : Traitement impossible",
+        }, {
+            status: 500
+        })
+    }
 }

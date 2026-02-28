@@ -19,10 +19,17 @@ export default async function checkoutSession(coursId: string){
         throw new AppError("Cours introuvable")
     }
 
+    if (coursToCheckout.isPaid !== true ){
+        throw new AppError("Le cours n'est pas payant impossible de charger la session Stripe")
+    }
+    if (coursToCheckout.priceCents == null || coursToCheckout.priceCents <= 0){
+        throw new AppError("Le prix n'est pas correctement définis")
+    } 
+
     const baseURL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
 
         const key = userSession.user.id as string|| (await headers()).get("x-forwarded-for") as string
-        const limit = await rateLimits(key, 10, 60*60*1000)
+        const limit = await rateLimits(key, 10, 60*60)
 
         if (!limit.allowed){
             throw new AppError("Trop de tentatives, veuillez ressayez plus tard")
@@ -30,7 +37,7 @@ export default async function checkoutSession(coursId: string){
     const stripeSession = await stripe.checkout.sessions.create({
         customer_email: userSession.user.email || undefined,
         mode:"payment",
-        success_url:`${baseURL}/cours/${coursId}`,
+        success_url:`${baseURL}/cours/[slug]`,
         cancel_url:`${baseURL}/checkout`,
         metadata : {    
             coursId, userId: userSession.user.id
@@ -43,7 +50,7 @@ export default async function checkoutSession(coursId: string){
                         name:coursToCheckout.title, 
                         description: coursToCheckout.description ?? "",
                         images:coursToCheckout.thumbnailUrl ? [coursToCheckout.thumbnailUrl] : undefined,
-                    }, unit_amount: coursToCheckout.priceCents ?? undefined
+                    }, unit_amount: coursToCheckout.priceCents
                 }, 
             }
         ]
@@ -55,7 +62,7 @@ export default async function checkoutSession(coursId: string){
             authUserId : userSession.user.id,
             coursId: coursToCheckout.id,            
             stripeCustomerId: stripeSession.customer as string,
-            amountCents: Number(coursToCheckout.priceCents) ,
+            amountCents: coursToCheckout.priceCents,
             status: "PENDING",
             stripeCheckoutSessionId: stripeSession.id,
             currency: "eur",
