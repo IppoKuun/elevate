@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Book, LayoutDashboard, UserPlus } from "lucide-react";
+import { Book, LayoutDashboard, Logs, UserPlus } from "lucide-react";
 
 const navLinks = [
   { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
   { name: "Cours", href: "/admin/cours", icon: Book },
   { name: "Invite", href: "/admin/invite", icon: UserPlus },
+  {name: "Logs", href: "/admin/logs", icon: Logs}
 ];
 
 function isActivePath(pathname: string, href: string) {

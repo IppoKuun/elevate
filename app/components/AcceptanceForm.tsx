@@ -14,6 +14,7 @@ export function AcceptForm({ token, email }: { token: string; email: string }) {
   return (
     <form
       action={formAction}
+      aria-busy={isPending}
       className="w-full max-w-lg rounded-2xl border border-slate-200/60 bg-white/85 backdrop-blur shadow-2xl px-8 py-10 space-y-6 text-slate-900"
     >
       {/* On cache le token dans un input pour qu'il parte avec le formulaire */}
@@ -30,7 +31,12 @@ export function AcceptForm({ token, email }: { token: string; email: string }) {
       </p>
 
       {result?.userMsg && (
-        <div className="p-3 text-sm text-red-700 bg-red-50 border border-red-100 rounded-xl">
+        <div
+          role="alert"
+          aria-live="assertive"
+          aria-atomic="true"
+          className="p-3 text-sm text-red-700 bg-red-50 border border-red-100 rounded-xl"
+        >
           {result.userMsg}
         </div>
       )}

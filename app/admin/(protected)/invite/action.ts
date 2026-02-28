@@ -9,7 +9,7 @@ import createLogs from "@/lib/newLogs";
 
 const schema = z.object ({
     email : z.string(),
- role : z.enum(["ADMIN", "OWNER"])
+    role : z.enum(["ADMIN", "VIEWER"])
 });
 
 

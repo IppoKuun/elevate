@@ -52,7 +52,7 @@ export async function createInvitation(email: string , role : StaffRoles){
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const inviteUrl = `${baseUrl}/admin/acceptance?token=${token}`;
 
-        await resend.emails.send({
+       const {error} = await resend.emails.send({
             from: process.env.RESEND_FROM_EMAIL as string,
             to:targetEmail,
             subject:"Invitation ELEVATE",
@@ -60,6 +60,12 @@ export async function createInvitation(email: string , role : StaffRoles){
                 invitedByEmail, inviteUrl
             })
         })
+        if (error){
+            await prisma.staffInvitation.delete({
+                where:{id: invitationQuery.id}                
+            })
+            throw new AppError("Echec de l'envoie de l'email, veuillez retentez.");
+        }
 
     return {token, inviteUrl, targetEmail : invitationQuery.email , invitationQueryId : invitationQuery.id}
 }
@@ -79,12 +85,15 @@ export async function acceptInvitation (token : string){
         const searchInvitation = await tx.staffInvitation.findUnique({
             where: {tokenHash}
         })
+        
     
         if (!searchInvitation || searchInvitation.revokeAt 
             || now > searchInvitation.expiredAt || searchInvitation.acceptedAt 
          ) throw new AppError("Lien inexistant, expiré, déjà accepeté ou annulé")
         
-         if (searchInvitation.email !== email) 
+             const targetEmail = normalizedEmail(email);
+
+         if (searchInvitation.email !== targetEmail) 
             throw new AppError(`Votre email : ${email} et l'email utilisé pour l'invitation ne corresponde pas. Connectez vous dans un autre naviguateur ou demandé aux admins si le liens d'invitations est bien similaires.`)
         
         await tx.staffProfile.create({

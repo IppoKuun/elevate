@@ -53,6 +53,9 @@ export default function InviteManager({inviteList, totalInvite}: inviteListProps
       {!result.ok && result.userMsg && (
         <div
           key={errorKey}
+          role="alert"
+          aria-live="assertive"
+          aria-atomic="true"
           className="div_err flash mx-auto mb-6 w-full max-w-3xl rounded-2xl border border-red-200 bg-red-50 p-4 text-base font-semibold text-red-700 shadow-sm"
         >
           {result.userMsg}
@@ -61,6 +64,7 @@ export default function InviteManager({inviteList, totalInvite}: inviteListProps
 
       <form
         action={formAction}
+        aria-busy={pending}
         className="mx-auto w-full max-w-3xl rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
       >
         <div className="mb-6 border-b border-slate-200 pb-4">
@@ -71,9 +75,10 @@ export default function InviteManager({inviteList, totalInvite}: inviteListProps
         </div>
 
         <div className="mb-5 w-full">
-          <label>Email</label>
+          <label htmlFor="invite-email">Email</label>
           <input
             className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+            id="invite-email"
             name="email"
             required
             type="email"
@@ -82,10 +87,13 @@ export default function InviteManager({inviteList, totalInvite}: inviteListProps
         </div>
 
         <div className="mb-4 w-full">
-          <label>Role</label>
+          <label id="invite-role-label">Role</label>
           <Listbox value={selectedRole} onChange={setSelectedRole} name="role">
             <div className="relative mt-2">
-              <Listbox.Button className="w-full cursor-pointer rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-left text-sm text-slate-700 shadow-sm outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200">
+              <Listbox.Button
+                aria-labelledby="invite-role-label"
+                className="w-full cursor-pointer rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-left text-sm text-slate-700 shadow-sm outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+              >
                 {selectedRole}
               </Listbox.Button>
               <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">

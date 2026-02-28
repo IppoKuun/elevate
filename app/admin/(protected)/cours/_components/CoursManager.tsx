@@ -84,7 +84,11 @@ export function CoursManager({ initialCours, canEdit, totalPage, currentPage }: 
         <div className="flex flex-col gap-3 border-b border-slate-200 bg-slate-50/80 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="relative h-10 w-full sm:max-w-md">
             <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+            <label htmlFor="cours-search" className="sr-only">
+              Rechercher
+            </label>
             <input
+              id="cours-search"
               placeholder="Rechercher"
               defaultValue={searchParam.get("q")?.toString()}
               onChange={(e) => updateUrl("q", e.target.value)}
@@ -93,7 +97,11 @@ export function CoursManager({ initialCours, canEdit, totalPage, currentPage }: 
           </div>
 
           <div className="flex flex-col gap-2 sm:flex-row">
+            <label htmlFor="cours-filter-type" className="sr-only">
+              Filtrer les cours
+            </label>
             <select
+              id="cours-filter-type"
               className="h-10 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-700 outline-none transition focus:border-slate-500"
               value={searchParam.get("type") ?? ""}
               onChange={(e) => updateUrl("type", e.target.value)}
@@ -103,7 +111,11 @@ export function CoursManager({ initialCours, canEdit, totalPage, currentPage }: 
               <option value="free">Gratuits</option>
             </select>
 
+            <label htmlFor="cours-filter-sort" className="sr-only">
+              Trier les cours
+            </label>
             <select
+              id="cours-filter-sort"
               className="h-10 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-700 outline-none transition focus:border-slate-500"
               value={searchParam.get("sort") ?? "desc"}
               onChange={(e) => updateUrl("sort", e.target.value)}
@@ -141,6 +153,7 @@ export function CoursManager({ initialCours, canEdit, totalPage, currentPage }: 
                     <div className="flex gap-3">
                       <button
                         type="button"
+                        aria-label="Modifié le cours"
                         onClick={() => handleEdit(cours)}
                         className="rounded-lg border border-slate-200 p-2 text-slate-600 transition hover:border-slate-300 hover:bg-slate-100 hover:text-slate-900"
                       >
@@ -148,6 +161,7 @@ export function CoursManager({ initialCours, canEdit, totalPage, currentPage }: 
                       </button>
                       <button
                         type="button"
+                        aria-label="Supprimer le cours"
                         onClick={() => setCourseToDelete(cours)}
                         className="rounded-lg border border-red-200 p-2 text-red-500 transition hover:border-red-300 hover:bg-red-50 hover:text-red-700"
                       >

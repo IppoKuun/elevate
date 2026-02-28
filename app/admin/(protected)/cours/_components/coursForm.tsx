@@ -99,7 +99,9 @@ async function handleGenerate(e: React.MouseEvent<HTMLButtonElement>) {
           required
         />
         {!result.ok && result.error?.title?.[0] && (
-          <p className="mt-1 text-xs text-red-500">{result.error.title[0]}</p>
+          <p role="alert" aria-live="polite" aria-atomic="true" className="mt-1 text-xs text-red-500">
+            {result.error.title[0]}
+          </p>
         )}
       </div>
       <ImageUpload
