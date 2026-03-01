@@ -26,11 +26,20 @@ const initialResult: CourseFormState = { ok: false, userMsg: "", error: {} };
 export default function CoursForm({ coursToEdit, onSucces }: CourFormProps) {
   const actionToUse = coursToEdit ? updateCourseAction : createCoursAction;
   const [result, formAction, pending] = useActionState<CourseFormState, FormData>(actionToUse, initialResult);
+  const [title, setTitle] = useState(coursToEdit?.title ?? "");
+  const [description, setDescription] = useState(coursToEdit?.description ?? "");
   const [generatedContent, setGeneratedContent] = useState(coursToEdit?.content ?? "");
+  const [priceCents, setPriceCents] = useState(String(coursToEdit?.priceCents ?? 0));
+  const [isPaid, setIsPaid] = useState(coursToEdit?.isPaid ?? false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedCat, setSelectedCat] = useState<CoursCategory>(coursToEdit?.category ?? categories[0]);
 
   useEffect(() => {
+    setTitle(coursToEdit?.title ?? "");
+    setDescription(coursToEdit?.description ?? "");
+    setGeneratedContent(coursToEdit?.content ?? "");
+    setPriceCents(String(coursToEdit?.priceCents ?? 0));
+    setIsPaid(coursToEdit?.isPaid ?? false);
     setSelectedCat(coursToEdit?.category ?? categories[0]);
   }, [coursToEdit]);
 
@@ -83,7 +92,8 @@ async function handleGenerate(e: React.MouseEvent<HTMLButtonElement>) {
         <label className="mb-1 block text-sm font-medium text-slate-700">Titre du cours</label>
         <input
           name="title"
-          defaultValue={coursToEdit?.title}
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
           placeholder="Ex: Apprendre Next.js en 3h"
           className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
           required
@@ -108,7 +118,8 @@ async function handleGenerate(e: React.MouseEvent<HTMLButtonElement>) {
         <label className="mb-1 block text-sm font-medium text-slate-700">Description courte</label>
         <textarea
           name="description"
-          defaultValue={coursToEdit?.description ?? ""}
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
           placeholder="Une petite phrase d'accroche..."
           className="h-24 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
         />
@@ -174,7 +185,8 @@ async function handleGenerate(e: React.MouseEvent<HTMLButtonElement>) {
           <input
             name="priceCents"
             type="number"
-            defaultValue={coursToEdit?.priceCents ?? 0}
+            value={priceCents}
+            onChange={(e) => setPriceCents(e.target.value)}
             className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
           />
           {!result.ok && result.error?.priceCents?.[0] && (
@@ -189,7 +201,8 @@ async function handleGenerate(e: React.MouseEvent<HTMLButtonElement>) {
             id="isPaid"
             name="isPaid"
             type="checkbox"
-            defaultChecked={coursToEdit?.isPaid ?? false}
+            checked={isPaid}
+            onChange={(e) => setIsPaid(e.target.checked)}
             className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-700"
           />
           <label htmlFor="isPaid" className="m-0 text-sm text-slate-700">

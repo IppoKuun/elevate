@@ -39,7 +39,7 @@ export async function createCoursAction(prevData: unknown, formData: FormData){
         ok:false, userMsg: "Erreur, impossible de créer le cours", error : parsed.error.flatten().fieldErrors
     }
         const image = formData.get("image")
-        const imageParsed = imageSchema.safeParse(image)
+        const imageParsed = imageSchema.safeParse({ image })
     
         if (!imageParsed.success){
             return {ok:false, userMsg: `Image invalide`, error: imageParsed.error.flatten().fieldErrors}
@@ -78,34 +78,35 @@ export async function updateCourseAction(prevData:unknown, formData: FormData){
 
     if (!parsed.success) return {ok: false, error : parsed.error.flatten().fieldErrors}
 
-        const old = await prisma.cours.findUnique({
+    const old = await prisma.cours.findUnique({
         where: {id: parsed?.data.id}
     })
-    const image = formData.get("image")
-    if (image){
-        try {
-            const old = await prisma.cours.findUnique({
-            where : {id: parsed?.data.id}
-            })
-            await deleteImage(old?.thumbnailPublicId!)
+    if (!old) {
+        return {ok:false, userMsg: "Cours introuvable"}
+    }
 
-            const imageParsed = imageSchema.safeParse(image)
+    const image = formData.get("image")
+    const hasNewImage = image instanceof File && image.size > 0
+    const hasOldImage = Boolean(old.thumbnailUrl && old.thumbnailPublicId)
+    let newImageData: { thumbnailUrl?: string; thumbnailPublicId?: string } = {}
+    let uploadedPublicId: string | null = null
+
+    if (hasNewImage){
+        try {
+            const imageParsed = imageSchema.safeParse({ image })
 
             if (!imageParsed.success){
-                return {ok:false, userMsg: `Image invalide`, error: imageParsed.error.flatten().fieldErrors}
+                return {ok:false, userMsg: "Image invalide", error: imageParsed.error.flatten().fieldErrors}
             }
 
             const finaleImage = imageParsed.data
 
             const {secure_url, public_id} = await uploadCloudinary(finaleImage.image) as any
-
-            await prisma.cours.update({
-                where: {id: parsed?.data.id},
-                data: {
-                    thumbnailUrl: secure_url, thumbnailPublicId : public_id
-                }
-            })
-              
+            uploadedPublicId = public_id
+            newImageData = {
+                thumbnailUrl: secure_url,
+                thumbnailPublicId: public_id
+            }
         } catch(err){
             if (err instanceof AppError){
                 return {ok: false, userMsg: err.message}
@@ -113,7 +114,6 @@ export async function updateCourseAction(prevData:unknown, formData: FormData){
                 return {ok: false, userMsg: "Impossible de changé l'image"}
             }
         }
-       
     }
     const {id, ...updateData} = parsed.data
 
@@ -123,11 +123,27 @@ export async function updateCourseAction(prevData:unknown, formData: FormData){
     }
 
 
-    const updated = await prisma.cours.update({
-        where: {id} , data: {...updateData, slug: newSlug}
-    })
+    let updated;
+    try {
+        updated = await prisma.cours.update({
+            where: {id} , data: {...updateData, slug: newSlug, ...newImageData}
+        })
+    } catch (err) {
+        if (uploadedPublicId) {
+            await deleteImage(uploadedPublicId)
+        }
+        throw err
+    }
     if (!updated) return{
         ok:false, userMsg: "Impossible d'enregistrer dans la base de données la modifications"
+    }
+
+    if (hasNewImage && hasOldImage) {
+        try {
+            await deleteImage(old.thumbnailPublicId)
+        } catch (err) {
+            console.error("Impossible de supprimer l'ancienne image Cloudinary", err)
+        }
     }
 
     await createLogs({
