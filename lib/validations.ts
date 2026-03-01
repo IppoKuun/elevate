@@ -1,4 +1,5 @@
- import { z } from "zod"
+ import { CoursCategory } from "@prisma/client"
+import { z } from "zod"
 
 
 export function slugify(input: string) {
@@ -18,6 +19,7 @@ export const priceCentsSchema = z
     .number()
     .int()
     .max(2000000, "Prix trop elevée" )
+    .min(1, "Prix trop bas")
 
 export const CourSchema = z.object({
     title : z
@@ -25,6 +27,8 @@ export const CourSchema = z.object({
     .trim()
     .min(3, "Titre trop court")
     .max(120, "Titre trop long, 120 max"),
+
+    category: z.nativeEnum(CoursCategory),
 
 
     description : z

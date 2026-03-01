@@ -1,5 +1,4 @@
 "use server"
-import { prisma } from "@/lib/db/prisma";
 import  AppError  from "@/lib/error"
 import { acceptInvitation } from "@/lib/invitations"
 import createLogs from "@/lib/newLogs";
@@ -13,7 +12,7 @@ export default async function acceptanceAction(prevState: unknown, formData: For
 
     const ok = await acceptInvitation(token);
     if (ok){
-       await createLogs({ action: "Inivitation Accepté" , entityType:"STAFF" , entityId : ok.invite.id, metadata: ok.email  })
+       await createLogs({ action: "Invitation Accepté" , entityType:"STAFF" , entityId : ok.invite.id, metadata: ok.email  })
     }
 
     return { ok: true };

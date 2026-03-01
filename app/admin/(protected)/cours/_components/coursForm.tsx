@@ -6,8 +6,10 @@ import { toast } from "sonner"
 import { Course } from "@/app/type"
 import ImageUpload from "./ImageUpload"
 import { Listbox, Transition } from "@headlessui/react"
+import { CoursCategory } from "@prisma/client"
 
 type FormErrors = Record<string, string[] | undefined>;
+const categories = Object.values(CoursCategory);
 
 interface CourFormProps {
   coursToEdit?: Course | null;
@@ -22,27 +24,15 @@ const initialResult: CourseFormState = { ok: false, userMsg: "", error: {} };
 
 
 export default function CoursForm({ coursToEdit, onSucces }: CourFormProps) {
-
-        const cat = [  "DEVELOPMENT",
-      "DESIGN",
-      "BUSINESS",
-      "MARKETING",
-      "DATA_SCIENCE",
-      "IT_SOFTWARE",
-      "PERSONAL_DEVELOPMENT",
-      "PHOTOGRAPHY",
-      "MUSIC",
-      "LANGUAGE",
-      "HEALTH_FITNESS",
-      "FINANCE",
-      "LIFESTYLE",
-      "TEACHING",]
-
   const actionToUse = coursToEdit ? updateCourseAction : createCoursAction;
   const [result, formAction, pending] = useActionState<CourseFormState, FormData>(actionToUse, initialResult);
   const [generatedContent, setGeneratedContent] = useState(coursToEdit?.content ?? "");
   const [isGenerating, setIsGenerating] = useState(false);
-  const [selectedCat, setSelectedCat] = useState(cat[0])
+  const [selectedCat, setSelectedCat] = useState<CoursCategory>(coursToEdit?.category ?? categories[0]);
+
+  useEffect(() => {
+    setSelectedCat(coursToEdit?.category ?? categories[0]);
+  }, [coursToEdit]);
 
 async function handleGenerate(e: React.MouseEvent<HTMLButtonElement>) {
   const form = e.currentTarget.form;
@@ -120,7 +110,7 @@ async function handleGenerate(e: React.MouseEvent<HTMLButtonElement>) {
       </div>
       <div className="w-full">
         <label className="mb-1 block text-sm font-medium text-slate-700">Categories</label>
-        <input type="hidden" name="categoryId" value={ coursToEdit?.category ?? selectedCat}
+        <input type="hidden" name="category" value={ selectedCat}
         />
         <Listbox value={selectedCat} onChange={setSelectedCat}>
           <div className="relative mt-1">
@@ -129,7 +119,7 @@ async function handleGenerate(e: React.MouseEvent<HTMLButtonElement>) {
             </Listbox.Button>
             <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0" >
               <Listbox.Options className="absolute z-10 mt-1 max-h-64 w-full overflow-auto rounded-xl border border-slate-200 bg-white py-1 shadow-lg focus:outline-none">
-                {cat.map((c) => (
+                {categories.map((c) => (
                   <Listbox.Option
                   key={c}
                   value={c}

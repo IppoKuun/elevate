@@ -7,8 +7,8 @@ import { revalidatePath } from "next/cache";
 import { uploadCloudinary } from "@/lib/cloudinary.config";
 import {v2 as cloudinary } from "cloudinary"
 import createLogs from "@/lib/newLogs";
-import Cours from "./page";
-import { before } from "node:test";
+import AppError from "@/lib/error";
+
 
 export async function generateUniqueSlug(title: string, id?:string){
     const baseSlug = slugify(title)
@@ -42,7 +42,7 @@ export async function createCoursAction(prevData: unknown, formData: FormData){
         const imageParsed = imageSchema.safeParse(image)
     
         if (!imageParsed.success){
-            return {ok:false, userMsg: imageParsed.error.flatten().fieldErrors}
+            return {ok:false, userMsg: `Image invalide`, error: imageParsed.error.flatten().fieldErrors}
         }
         const imageVerfied = imageParsed.data
 
@@ -51,7 +51,7 @@ export async function createCoursAction(prevData: unknown, formData: FormData){
     let finalSlug = await generateUniqueSlug(parsed.data.title)
 
     const create = await prisma.cours.create({
-        data : {...parsed.data, slug : finalSlug},  
+        data : {...parsed.data, slug : finalSlug, thumbnailUrl: secure_url, thumbnailPublicId: public_id},  
     });
     if (!create) return {ok:false, userMsg :" Impossible de créer le cours" }
     revalidatePath("/admin/cours")
@@ -78,9 +78,43 @@ export async function updateCourseAction(prevData:unknown, formData: FormData){
 
     if (!parsed.success) return {ok: false, error : parsed.error.flatten().fieldErrors}
 
-        const old = await prisma.cours.findFirst({
+        const old = await prisma.cours.findUnique({
         where: {id: parsed?.data.id}
     })
+    const image = formData.get("image")
+    if (image){
+        try {
+            const old = await prisma.cours.findUnique({
+            where : {id: parsed?.data.id}
+            })
+            await deleteImage(old?.thumbnailPublicId!)
+
+            const imageParsed = imageSchema.safeParse(image)
+
+            if (!imageParsed.success){
+                return {ok:false, userMsg: `Image invalide`, error: imageParsed.error.flatten().fieldErrors}
+            }
+
+            const finaleImage = imageParsed.data
+
+            const {secure_url, public_id} = await uploadCloudinary(finaleImage.image) as any
+
+            await prisma.cours.update({
+                where: {id: parsed?.data.id},
+                data: {
+                    thumbnailUrl: secure_url, thumbnailPublicId : public_id
+                }
+            })
+              
+        } catch(err){
+            if (err instanceof AppError){
+                return {ok: false, userMsg: err.message}
+            } else {
+                return {ok: false, userMsg: "Impossible de changé l'image"}
+            }
+        }
+       
+    }
     const {id, ...updateData} = parsed.data
 
     let newSlug = undefined
