@@ -19,9 +19,9 @@ export const priceCentsSchema = z
     .number()
     .int()
     .max(2000000, "Prix trop elevée" )
-    .min(1, "Prix trop bas")
+    .min(0, "Prix trop bas")
 
-export const CourSchema = z.object({
+const courseBaseSchema = z.object({
     title : z
     .string()
     .trim()
@@ -47,6 +47,16 @@ export const CourSchema = z.object({
 
 })
 
+export const CourSchema = courseBaseSchema.superRefine((data, ctx) => {
+  if (data.isPaid === true && data.priceCents <= 0) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["priceCents"],
+      message: "Le prix doit etre superieur a 0 pour un cours payant",
+    });
+  }
+})
+
 export const imageSchema = z.object({
   image: z
     .instanceof(File)
@@ -60,8 +70,16 @@ export const imageSchema = z.object({
 
 export type zodSchema = z.infer<typeof CourSchema>
 
-export const updateCourseSchema = CourSchema.partial().extend({
+export const updateCourseSchema = courseBaseSchema.partial().extend({
     id : z.string().uuid("ID Invalide")
+}).superRefine((data, ctx) => {
+  if (data.isPaid === true && (data.priceCents == null || data.priceCents <= 0)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["priceCents"],
+      message: "Le prix doit etre superieur a 0 pour un cours payant",
+    });
+  }
 })
 
 export type zodUpdateCourse = z.infer<typeof updateCourseSchema>
