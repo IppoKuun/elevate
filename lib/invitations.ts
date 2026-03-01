@@ -32,10 +32,9 @@ export async function createInvitation(email: string , role : StaffRoles){
     const invitedByEmail = session.user.email
 
     if (!limit.allowed){
-        throw new AppError("Trop de tentatives, veuillez ressayer")
+        const retry = limit.retryAfter ? limit.retryAfter/(60*60) : limit.duration/ (60*60) 
+        throw new AppError(`Trop de tentatives, veuillez ressayer dans ${retry.toFixed(2)} heure `)
     }
-
-
     const token = generateInviteToken()
     const tokenHash = sha256(token)
     const now = new Date()
@@ -52,7 +51,8 @@ export async function createInvitation(email: string , role : StaffRoles){
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const inviteUrl = `${baseUrl}/admin/acceptance?token=${token}`;
 
-       const {error} = await resend.emails.send({
+  
+           const {error} = await resend.emails.send({
             from: process.env.RESEND_FROM_EMAIL as string,
             to:targetEmail,
             subject:"Invitation ELEVATE",
@@ -64,8 +64,10 @@ export async function createInvitation(email: string , role : StaffRoles){
             await prisma.staffInvitation.delete({
                 where:{id: invitationQuery.id}                
             })
+            console.log(error.message)
             throw new AppError("Echec de l'envoie de l'email, veuillez retentez.");
         }
+
 
     return {token, inviteUrl, targetEmail : invitationQuery.email , invitationQueryId : invitationQuery.id}
 }

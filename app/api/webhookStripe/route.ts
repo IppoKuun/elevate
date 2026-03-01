@@ -96,7 +96,8 @@ export async function POST(req : NextRequest){
                 subject: `Accès à ${valide.course.title}`,
                 react: StripeWelcomeEmail({ 
                     userName: customerName as string, 
-                    courseTitle: valide.course.title
+                    courseTitle: valide.course.title,
+                    courseImageUrl: valide.course.thumbnailUrl
                 }),
             })
 

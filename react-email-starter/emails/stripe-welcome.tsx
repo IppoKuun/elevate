@@ -15,42 +15,52 @@ import {
 interface StripeWelcomeEmailProps {
   userName: string;
   courseTitle: string;
+  courseImageUrl?: string | null;
 }
 
 const baseUrl = process.env.NEXT_PUBLIC_URL || "http://localhost:3000/"
 
-export const StripeWelcomeEmail = ({userName, courseTitle} : StripeWelcomeEmailProps) => (
-  <Html>
-    <Head />
-    <Body style={main}>
-      <Preview>Félicitations ! Vous avez accès à votre cours {courseTitle}</Preview>
-      <Container style={container}>
-        <Section style={box}>
-          <Img
-            src={`${baseUrl}/logo.png`}
-            width="180"
-            height="60"
-            alt="Elevate"
-            style={{ margin: "0 auto" }}
-          />
-          <Hr style={hr} />
-          <Text style={paragraph}>
-            Bonjour {userName},
-          </Text>
-          <Text style={paragraph}>
-            Merci pour votre achat ! Vous avez maintenant accès au cours : 
-            <strong> {courseTitle}</strong>.
-          </Text>
-          <Button style={button} href="https://ton-site.com/dashboard">
-            Accéder à mon espace membre
-          </Button>
-          <Hr style={hr} />
-          <Text style={paragraph}>— L'équipe de Ton App</Text>
-        </Section>
-      </Container>
-    </Body>
-  </Html>
-);
+export const StripeWelcomeEmail = ({
+  userName,
+  courseTitle,
+  courseImageUrl,
+}: StripeWelcomeEmailProps) => {
+  const heroImage = courseImageUrl || `${baseUrl}/logo.png`;
+  const isCourseImage = Boolean(courseImageUrl);
+
+  return (
+    <Html>
+      <Head />
+      <Body style={main}>
+        <Preview>Félicitations ! Vous avez accès à votre cours {courseTitle}</Preview>
+        <Container style={container}>
+          <Section style={box}>
+            <Img
+              src={heroImage}
+              width={isCourseImage ? "560" : "180"}
+              height={isCourseImage ? "220" : "60"}
+              alt={isCourseImage ? courseTitle : "Elevate"}
+              style={isCourseImage ? courseHeroImage : logoImage}
+            />
+            <Hr style={hr} />
+            <Text style={paragraph}>
+              Bonjour {userName},
+            </Text>
+            <Text style={paragraph}>
+              Merci pour votre achat ! Vous avez maintenant accès au cours :
+              <strong> {courseTitle}</strong>.
+            </Text>
+            <Button style={button} href="https://ton-site.com/dashboard">
+              Accéder à mon espace membre
+            </Button>
+            <Hr style={hr} />
+            <Text style={paragraph}>— L'équipe de Ton App</Text>
+          </Section>
+        </Container>
+      </Body>
+    </Html>
+  );
+};
 
 export default StripeWelcomeEmail;
 
@@ -69,6 +79,19 @@ const container = {
 
 const box = {
   padding: '0 48px',
+};
+
+const logoImage = {
+  margin: '0 auto',
+};
+
+const courseHeroImage = {
+  margin: '0 auto',
+  width: '100%',
+  maxWidth: '560px',
+  height: '220px',
+  objectFit: 'cover' as const,
+  borderRadius: '16px',
 };
 
 const hr = {

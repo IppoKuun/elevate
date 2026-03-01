@@ -255,7 +255,7 @@ export default async function AdminDashboardPage() {
               <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
                 <p className="text-sm font-medium text-slate-500">Surveillance</p>
                 <p className="mt-1 text-base font-semibold text-slate-900">
-                  {recentLogsCount} evenement(s) journalise(s) sur les 24 dernieres heures
+                  {recentLogsCount} Evenement(s) journalise(s) sur les 24 dernieres heures
                 </p>
               </div>
             </div>

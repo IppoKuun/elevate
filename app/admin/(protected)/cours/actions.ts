@@ -156,7 +156,7 @@ export async function updateCourseAction(prevData:unknown, formData: FormData){
 
     if (hasNewImage && hasOldImage) {
         try {
-            await deleteImage(old.thumbnailPublicId)
+            await deleteImage(old.thumbnailPublicId!)
         } catch (err) {
             console.error("Impossible de supprimer l'ancienne image Cloudinary", err)
         }
@@ -176,19 +176,14 @@ export async function updateCourseAction(prevData:unknown, formData: FormData){
 }
 
 export async function deleteCoursAction(id: string){
-      await requireStaffRole("ADMIN");
-      // input: id
-    const cours = await prisma.cours.findUnique({ where: { id }, });
-    if (cours?.thumbnailPublicId) await deleteImage(cours.thumbnailPublicId);
+    await requireStaffRole("ADMIN");
 
-    if (cours){
-        await createLogs({
-      action: "Cours supprimé",
-      entityType: "COURS",
-      entityId: cours?.id,
-      metadata: cours?.title
-    })
+    const cours = await prisma.cours.findUnique({
+        where: { id },
+    });
 
+    if (!cours) {
+        return {ok:false, userMsg:"Cours introuvable"}
     }
 
     const deleted = await prisma.cours.delete({
@@ -197,7 +192,20 @@ export async function deleteCoursAction(id: string){
     
     if (!deleted) return {ok:false, userMsg:"Impossible d'enregistrer la suppression dans la base de données."}
 
+    if (cours.thumbnailPublicId) {
+        try {
+            await deleteImage(cours.thumbnailPublicId)
+        } catch (err) {
+            console.error("Impossible de supprimer l'image Cloudinary du cours", err)
+        }
+    }
 
+    await createLogs({
+        action: "Cours supprimé",
+        entityType: "COURS",
+        entityId: deleted.id,
+        metadata: deleted.title
+    })
 
     return {ok: true}
 }

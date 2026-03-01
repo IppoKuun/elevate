@@ -8,10 +8,12 @@ export default async function rateLimits(key:string, limit:number, duration:numb
     if (compteur === 1){
         redis?.expire(identifier, duration)
     }
+    const retryAfter = await redis?.ttl(identifier)
 
 
     return {
         allowed: compteur as number <= limit,
-        remaining :Math.max(0, limit - Number(compteur))
+        remaining :Math.max(0, limit - Number(compteur)),
+        retryAfter, duration
     }
 }
