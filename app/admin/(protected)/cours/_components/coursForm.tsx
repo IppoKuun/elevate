@@ -99,6 +99,11 @@ async function handleGenerate(e: React.MouseEvent<HTMLButtonElement>) {
       name="image"
       defaultValue={coursToEdit?.thumbnailUrl ?? ""}
       />
+      {!result.ok && result.error?.image?.[0] && (
+        <p role="alert" aria-live="polite" aria-atomic="true" className="-mt-3 text-xs text-red-500">
+          {result.error.image[0]}
+        </p>
+      )}
       <div>
         <label className="mb-1 block text-sm font-medium text-slate-700">Description courte</label>
         <textarea
@@ -107,6 +112,11 @@ async function handleGenerate(e: React.MouseEvent<HTMLButtonElement>) {
           placeholder="Une petite phrase d'accroche..."
           className="h-24 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
         />
+        {!result.ok && result.error?.description?.[0] && (
+          <p role="alert" aria-live="polite" aria-atomic="true" className="mt-1 text-xs text-red-500">
+            {result.error.description[0]}
+          </p>
+        )}
       </div>
       <div className="w-full">
         <label className="mb-1 block text-sm font-medium text-slate-700">Categories</label>
@@ -133,6 +143,11 @@ async function handleGenerate(e: React.MouseEvent<HTMLButtonElement>) {
             </Transition>
           </div>
         </Listbox>
+        {!result.ok && result.error?.category?.[0] && (
+          <p role="alert" aria-live="polite" aria-atomic="true" className="mt-1 text-xs text-red-500">
+            {result.error.category[0]}
+          </p>
+        )}
       </div>
       <div>
         <button type="button" disabled={isGenerating} onClick={handleGenerate} 
@@ -146,6 +161,11 @@ async function handleGenerate(e: React.MouseEvent<HTMLButtonElement>) {
         value={isGenerating ? "Patience, le cours est entrain de se généré..." : generatedContent }
         onChange={(e)=> setGeneratedContent(e.target.value)}
         ></textarea>
+        {!result.ok && result.error?.content?.[0] && (
+          <p role="alert" aria-live="polite" aria-atomic="true" className="mt-1 text-xs text-red-500">
+            {result.error.content[0]}
+          </p>
+        )}
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -157,6 +177,11 @@ async function handleGenerate(e: React.MouseEvent<HTMLButtonElement>) {
             defaultValue={coursToEdit?.priceCents ?? 0}
             className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
           />
+          {!result.ok && result.error?.priceCents?.[0] && (
+            <p role="alert" aria-live="polite" aria-atomic="true" className="mt-1 text-xs text-red-500">
+              {result.error.priceCents[0]}
+            </p>
+          )}
         </div>
 
         <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5">
@@ -172,6 +197,11 @@ async function handleGenerate(e: React.MouseEvent<HTMLButtonElement>) {
           </label>
         </div>
       </div>
+      {!result.ok && result.error?.isPaid?.[0] && (
+        <p role="alert" aria-live="polite" aria-atomic="true" className="-mt-2 text-xs text-red-500">
+          {result.error.isPaid[0]}
+        </p>
+      )}
 
       <div className="flex justify-end pt-2">
         <button
