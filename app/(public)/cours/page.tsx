@@ -13,7 +13,7 @@ interface PageProps {
 }
 
 export default async function CoursPage({ searchParams }: PageProps) {
-  const { q: query, type, sort } = searchParams;
+  const { q: query, type, sort } = await searchParams;
   const session = await getSession();
   const where: Prisma.CoursWhereInput = {};
 

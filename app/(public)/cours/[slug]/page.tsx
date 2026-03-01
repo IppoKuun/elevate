@@ -76,7 +76,8 @@ export default async function CoursSlugPage({ params }: PageProps) {
                 Vous devez débloquer ce cours pour accéder à son contenu.
               </p>
               <p className="mb-5 text-3xl font-semibold text-slate-900">
-                {(course.priceCents ?? 0) / 100} €
+                                {(cours.priceCents ?? 0) / 100} €
+
               </p>
               <form action={handleCheckout}>
                 <button

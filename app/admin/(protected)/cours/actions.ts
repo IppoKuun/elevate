@@ -9,6 +9,9 @@ import {v2 as cloudinary } from "cloudinary"
 import createLogs from "@/lib/newLogs";
 import AppError from "@/lib/error";
 
+function toPriceCents(amount: number) {
+    return Math.round(amount * 100)
+}
 
 export async function generateUniqueSlug(title: string, id?:string){
     const baseSlug = slugify(title)
@@ -51,7 +54,13 @@ export async function createCoursAction(prevData: unknown, formData: FormData){
     let finalSlug = await generateUniqueSlug(parsed.data.title)
 
     const create = await prisma.cours.create({
-        data : {...parsed.data, slug : finalSlug, thumbnailUrl: secure_url, thumbnailPublicId: public_id},  
+        data : {
+            ...parsed.data,
+            priceCents: toPriceCents(parsed.data.priceCents),
+            slug : finalSlug,
+            thumbnailUrl: secure_url,
+            thumbnailPublicId: public_id
+        },  
     });
     if (!create) return {ok:false, userMsg :" Impossible de créer le cours" }
     revalidatePath("/admin/cours")
@@ -126,7 +135,14 @@ export async function updateCourseAction(prevData:unknown, formData: FormData){
     let updated;
     try {
         updated = await prisma.cours.update({
-            where: {id} , data: {...updateData, slug: newSlug, ...newImageData}
+            where: {id} , data: {
+                ...updateData,
+                priceCents: typeof updateData.priceCents === "number"
+                    ? toPriceCents(updateData.priceCents)
+                    : updateData.priceCents,
+                slug: newSlug,
+                ...newImageData
+            }
         })
     } catch (err) {
         if (uploadedPublicId) {

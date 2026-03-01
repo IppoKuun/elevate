@@ -16,7 +16,7 @@ export default function login(){
     const [show, setShow] = useState(false)
 
     const searchParams = useSearchParams()
-    const callbackUrl = searchParams.get("callbackUrl") ?? "/"
+    const callbackUrl = searchParams.get("callbackUrl") ?? "/cours"
     const router = useRouter()
 
     const handleSubmit = async (e : React.FormEvent<HTMLFormElement>) => {
