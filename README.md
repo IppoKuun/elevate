@@ -1,36 +1,268 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ELEVATE
 
-## Getting Started
+Plateforme de formation construite avec Next.js, orientee SaaS, avec :
 
-First, run the development server:
+- espace public (catalogue, fiche cours, profil)
+- backoffice staff (dashboard, gestion des cours, invitations, logs)
+- authentification Better Auth
+- connexion sociale Microsoft / Google
+- paiements Stripe
+- envoi d'emails via Resend
+- upload d'images via Cloudinary
+
+Le projet est avant tout un terrain d'entrainement avance pour travailler une architecture full-stack moderne avec App Router, Prisma, Server Actions et integrations externes.
+
+## Stack
+
+- Next.js 16
+- React 19
+- TypeScript
+- Tailwind CSS v4
+- Prisma + PostgreSQL
+- Better Auth
+- Stripe
+- Resend
+- Cloudinary
+- Redis / Upstash Redis
+- Vitest
+
+## Fonctionnalites
+
+### Public
+
+- page d'accueil marketing
+- catalogue de cours
+- page detail d'un cours
+- achat Stripe pour les cours payants
+- page profil utilisateur
+- pages legales
+
+### Admin
+
+- login admin Microsoft
+- dashboard staff
+- creation / modification / suppression de cours
+- invitations staff avec token
+- acceptation d'invitation
+- journalisation d'actions (audit logs)
+
+### Technique
+
+- controle d'acces par role (`OWNER`, `ADMIN`, `VIEWER`, `TEST`)
+- rate limiting Redis sur certaines actions sensibles
+- emails transactionnels (invitation, reset password, confirmation apres achat)
+- webhook Stripe avec idempotence de traitement
+
+## Arborescence utile
+
+```txt
+app/
+  (public)/                Interface publique
+  admin/
+    login/                 Login admin public
+    (protected)/           Backoffice protege
+  api/
+    webhookStripe/         Webhook Stripe
+lib/
+  auth.ts                  Configuration Better Auth
+  invitations.ts           Logique d'invitation staff
+  rbac.ts                  Roles et autorisations
+  redisRateLimits.ts       Rate limiting Redis
+prisma/
+  schema.prisma            Schema Prisma
+db/
+  00_bootstrap.sql         Creation des schemas PostgreSQL
+react-email-starter/
+  emails/                  Templates emails React Email
+```
+
+## Prerequis
+
+- Node.js 20+
+- npm
+- PostgreSQL
+- Redis local (en dev) pour rate limiting
+- un compte Stripe (mode test suffit)
+- un compte Resend
+- un compte Cloudinary
+- un tenant Microsoft Entra ID,  login Microsoft
+
+## Installation
+
+### 1. Installer les dependances
+
+```bash
+npm ci
+```
+
+### 2. Configurer l'environnement
+
+Cree un fichier `.env` a la racine avec les variables adaptees.
+
+Variables principales attendues :
+
+```env
+DATABASE_URL=
+AUTH_DATABASE_URL=
+BETTER_AUTH_SECRET=
+BETTER_AUTH_URL=
+
+REDIS_URL=
+UPSTASH_REDIS_REST_URL=
+UPSTASH_REDIS_REST_TOKEN=
+
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+MICROSOFT_CLIENT_ID=
+MICROSOFT_CLIENT_SECRET=
+MICROSOFT_TENANT_ID=
+
+CLOUDINARY_CLOUD_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
+
+STRIPE_SECRET=
+STRIPE_WEBHOOK_SECRET=
+
+RESEND_API_KEY=
+RESEND_FROM_EMAIL=
+
+OPENAI_API_KEY=
+OPENAI_MODEL=
+```
+
+## Base de donnees
+
+Le projet utilise deux schemas PostgreSQL :
+
+- `app`
+- `auth`
+
+Avant les migrations Prisma, il faut creer les schemas et extensions necessaires.
+
+### 1. Bootstrap SQL
+
+```bash
+psql "$DATABASE_URL" -f db/00_bootstrap.sql
+```
+
+### 2. Generer Prisma Client
+
+```bash
+npx prisma generate
+```
+
+### 3. Appliquer les migrations
+
+```bash
+npx prisma migrate dev
+```
+
+### 4. Ouvrir Prisma Studio
+
+```bash
+npx prisma studio
+```
+
+## Lancer le projet
+
+### Developpement
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Application :
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- public : `http://localhost:3000`
+- admin login : `http://localhost:3000/admin/login`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Production locale
 
-## Learn More
+```bash
+npm run build
+npm run start
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Commandes utiles
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Lint
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm run lint
+```
 
-## Deploy on Vercel
+### Tests Vitest
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Le projet contient des tests Vitest, pas optimal, juste des test
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npx vitest run
+```
+
+### Verification TypeScript
+
+```bash
+npx tsc --noEmit
+```
+
+### Validation Prisma
+
+```bash
+npx prisma validate
+```
+
+## Stripe (mode test)
+
+Pour tester les webhooks en local :
+
+```bash
+stripe login
+stripe listen --forward-to localhost:3000/api/webhookStripe
+```
+
+Le secret affiche par Stripe CLI doit etre copie dans :
+
+```env
+STRIPE_WEBHOOK_SECRET=
+```
+
+Pour simuler un paiement :
+
+
+## Authentification
+
+Le projet gere deux usages distincts :
+
+- espace public avec login classique / social
+- espace admin avec login Microsoft
+
+Le backoffice admin est protege par :
+
+- une session valide
+- un `StaffProfile` relie a l'utilisateur
+- un role suffisant selon l'action
+
+## Gestion des roles
+
+Roles disponibles :
+
+- `OWNER`
+- `ADMIN`
+- `VIEWER`
+- `TEST`
+
+Exemples :
+
+- `OWNER` peut inviter un `ADMIN`
+- `ADMIN` peut inviter un `VIEWER`
+- certaines actions critiques passent par `requireStaffRole(...)`
+
+## Notes importantes
+
+- Le champ `priceCents` est stocke en centimes en base.
+- Les suppressions de cours peuvent etre bloquees si des achats sont lies (`onDelete: Restrict`).
+- Certains flux dependent de services externes reels (Stripe, Resend, Cloudinary, Microsoft).
+- Le projet est evolutif et sert aussi de bac a sable d'apprentissage : certaines zones peuvent etre encore en cours de stabilisation.
+
+

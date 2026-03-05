@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { deleteCoursAction } from "../actions";
 import { Pencil, Search, Trash, ChevronLeft, ChevronRight } from "lucide-react";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import CoursModale from "./coursModale";
 import { Course } from "@/app/type";
+import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 
 interface CoursManagerProps {
   initialCours: Course[];
@@ -69,6 +70,61 @@ export function CoursManager({ initialCours, canEdit, totalPage, currentPage }: 
     router.refresh();
   };
 
+  const columns = useMemo<ColumnDef<Course>[]>(() => {
+    const baseColumns: ColumnDef<Course>[] = [
+      {
+        accessorKey: "title",
+        header: "Cours",
+        cell: ({ row }) => <span className="font-medium text-slate-800">{row.original.title}</span>,
+      },
+      {
+        accessorKey: "priceCents",
+        header: "Prix",
+        cell: ({ row }) => <span className="text-slate-600">{row.original.priceCents != null ? Number(row.original.priceCents) : "-"}</span>,
+      },
+      {
+        accessorKey: "category",
+        header: "Categories",
+        cell: ({ row }) => <span className="text-slate-600">{row.original.category ?? "-"}</span>,
+      },
+    ];
+
+    if (canEdit) {
+      baseColumns.push({
+        id: "actions",
+        header: "Actions",
+        cell: ({ row }) => (
+          <div className="flex gap-3">
+            <button
+              type="button"
+              aria-label="Modifié le cours"
+              onClick={() => handleEdit(row.original)}
+              className="rounded-lg border border-slate-200 p-2 text-slate-600 transition hover:border-slate-300 hover:bg-slate-100 hover:text-slate-900"
+            >
+              <Pencil size={16} />
+            </button>
+            <button
+              type="button"
+              aria-label="Supprimer le cours"
+              onClick={() => setCourseToDelete(row.original)}
+              className="rounded-lg border border-red-200 p-2 text-red-500 transition hover:border-red-300 hover:bg-red-50 hover:text-red-700"
+            >
+              <Trash size={16} />
+            </button>
+          </div>
+        ),
+      });
+    }
+
+    return baseColumns;
+  }, [canEdit]);
+
+  const table = useReactTable({
+    data: initialCours,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+  });
+
   return (
     <section className="w-full px-6 py-8 lg:px-10">
       {canEdit && (
@@ -128,48 +184,31 @@ export function CoursManager({ initialCours, canEdit, totalPage, currentPage }: 
 
         <table className="w-full border-collapse text-left text-sm">
           <thead className="bg-white text-slate-500">
-            <tr>
-              <th className="px-4 py-3 font-medium">Cours</th>
-              <th className="px-4 py-3 font-medium">Prix</th>
-              <th className="px-4 py-3 font-medium">Categories</th>
-              {canEdit && <th className="px-4 py-3 font-medium">Actions</th>}
-            </tr>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <tr key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <th key={header.id} className="px-4 py-3 font-medium">
+                    {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                  </th>
+                ))}
+              </tr>
+            ))}
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {initialCours.length === 0 && (
+            {table.getRowModel().rows.length === 0 && (
               <tr>
-                <td colSpan={4} className="px-4 py-12 text-center text-sm text-slate-500">
+                <td colSpan={table.getAllLeafColumns().length} className="px-4 py-12 text-center text-sm text-slate-500">
                   Aucun cours present en base de donnees
                 </td>
               </tr>
             )}
-            {initialCours.map((cours) => (
-              <tr key={cours.id} className="transition hover:bg-slate-50/70">
-                <td className="px-4 py-3 font-medium text-slate-800">{cours.title}</td>
-                <td className="px-4 py-3 text-slate-600">{cours.priceCents != null ? Number(cours.priceCents) : "-"}</td>
-                <td className="px-4 py-3 text-slate-600">{cours.category ?? "-"}</td>
-                {canEdit && (
-                  <td className="px-4 py-3">
-                    <div className="flex gap-3">
-                      <button
-                        type="button"
-                        aria-label="Modifié le cours"
-                        onClick={() => handleEdit(cours)}
-                        className="rounded-lg border border-slate-200 p-2 text-slate-600 transition hover:border-slate-300 hover:bg-slate-100 hover:text-slate-900"
-                      >
-                        <Pencil size={16} />
-                      </button>
-                      <button
-                        type="button"
-                        aria-label="Supprimer le cours"
-                        onClick={() => setCourseToDelete(cours)}
-                        className="rounded-lg border border-red-200 p-2 text-red-500 transition hover:border-red-300 hover:bg-red-50 hover:text-red-700"
-                      >
-                        <Trash size={16} />
-                      </button>
-                    </div>
+            {table.getRowModel().rows.map((row) => (
+              <tr key={row.id} className="transition hover:bg-slate-50/70">
+                {row.getVisibleCells().map((cell) => (
+                  <td key={cell.id} className="px-4 py-3">
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
-                )}
+                ))}
               </tr>
             ))}
           </tbody>
