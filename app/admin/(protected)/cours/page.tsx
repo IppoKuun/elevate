@@ -2,6 +2,7 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db/prisma";
 import { requireStaffRole } from "@/lib/rbac";
 import { CoursManager } from "./_components/CoursManager";
+import { Suspense } from "react";
 
 interface PageProps {
   searchParams: Promise<{
@@ -44,5 +45,9 @@ export default async function Cours({ searchParams }: PageProps) {
   const ttPages = Math.max(1, Math.ceil(totalCours / coursPerPage));
   const canEdit = staff.role === "ADMIN" || staff.role === "OWNER";
 
-  return <CoursManager currentPage={currentPage} totalPage={ttPages} initialCours={cours} canEdit={canEdit} />;
+  return (
+    <Suspense fallback={null}>
+      <CoursManager currentPage={currentPage} totalPage={ttPages} initialCours={cours} canEdit={canEdit} />
+    </Suspense>
+  );
 }

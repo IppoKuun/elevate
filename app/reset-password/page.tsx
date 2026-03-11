@@ -3,10 +3,10 @@
 import { authClient } from "@/lib/auth-client";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import { toast } from "sonner";
 
-export default function ResetPasswordPage() {
+function ResetPasswordContent() {
   const params = useSearchParams();
   const router = useRouter();
   const token = useMemo(() => params.get("token") ?? "", [params]);
@@ -102,5 +102,13 @@ export default function ResetPasswordPage() {
         </button>
       </form>
     </main>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={null}>
+      <ResetPasswordContent />
+    </Suspense>
   );
 }

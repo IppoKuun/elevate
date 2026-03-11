@@ -1,13 +1,13 @@
 "use client"
 import { authClient } from "@/lib/auth-client"
-import { useState } from "react"
+import { Suspense, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { toast } from "sonner"
 import Image from "next/image"
 import { Eye, EyeClosed } from "lucide-react"
 import Link from "next/link"
 
-export default function login(){
+function LoginContent(){
     const [isLogin, setIsLogin] = useState(true)
     const [email, setEmail] = useState<string>("")
     const [password, setPassword] = useState<string>("")
@@ -133,5 +133,13 @@ export default function login(){
                     <p className="text-xs text-slate-600 hover:text-slate-800 transition"> { isLogin ? "Vous n'avez pas de compte ? Inscrivez-vous" : "Vous avez un compte ? Connectez-vous" }</p>
             </div>
         </main>
+    )
+}
+
+export default function login() {
+    return (
+        <Suspense fallback={null}>
+            <LoginContent />
+        </Suspense>
     )
 }

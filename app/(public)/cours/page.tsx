@@ -3,6 +3,7 @@ import { Prisma } from "@prisma/client";
 import { CoursCard } from "./_components/CoursCard";
 import { CoursFilter } from "./_components/CoursFilter";
 import getSession from "@/lib/session";
+import { Suspense } from "react";
 
 interface PageProps {
   searchParams: {
@@ -56,7 +57,9 @@ export default async function CoursPage({ searchParams }: PageProps) {
             Explorez le catalogue et débloquez les contenus premium.
           </p>
         </div>
-        <CoursFilter />
+        <Suspense fallback={null}>
+          <CoursFilter />
+        </Suspense>
         <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
           {courses.map((cours) => (
             <CoursCard

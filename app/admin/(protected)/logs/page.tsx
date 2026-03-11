@@ -3,6 +3,7 @@ import { requireStaffRole } from "@/lib/rbac";
 import { AuditLog, Prisma } from "@prisma/client";
 import {redirect } from "next/navigation"
 import LogsManager from "./_components/LogsManager"
+import { Suspense } from "react";
 
 interface pageParamsProps {
     searchParams: Promise<{
@@ -50,6 +51,10 @@ export default async function adminLogs({searchParams} : pageParamsProps) {
 
     const ttPages = Math.max(1, Math.ceil(logsCount/logsPerpages))
 
-    return <LogsManager ttPages={ttPages} currentPage={currentPage}  allStaff={allStaff}  logs={logs} />
+    return (
+        <Suspense fallback={null}>
+            <LogsManager ttPages={ttPages} currentPage={currentPage}  allStaff={allStaff}  logs={logs} />
+        </Suspense>
+    )
     
 }
