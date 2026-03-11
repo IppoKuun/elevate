@@ -93,7 +93,7 @@ function LoginContent(){
                     placeholder="********"
                     type={show ? "text" : "password"}
                     value={password}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => setPassword(e.target.value)}
                     className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 pr-12 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition"
                     ></input>
                 </div>

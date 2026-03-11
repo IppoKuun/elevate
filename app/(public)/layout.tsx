@@ -12,7 +12,21 @@ export default async function PublicLayout({
   const session = await getSession();
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50">
+    <div className="flex min-h-screen flex-col bg-slate-50 pt-11">
+      <div className="fixed left-0 top-0 z-50 h-11 w-full border-b border-amber-200 bg-amber-50/95 backdrop-blur">
+        <div className="mx-auto flex h-full max-w-7xl items-center justify-center gap-2 px-3 text-center text-xs font-medium text-amber-900 md:text-sm">
+          Pour tester les paiements, utilisez la carte
+          <span className="rounded bg-amber-100 px-1.5 py-0.5 font-semibold tracking-wide">
+            4242 4242 4242 4242
+          </span>
+          (CVC: 123, Exp: 12/28)
+          <span className="text-amber-700">|</span>
+          <span>Pour tester le backoffice :</span>
+          <Link href="/admin/dashboard" className="font-semibold underline decoration-amber-700 underline-offset-2 hover:text-amber-700">
+            cliquez ici
+          </Link>
+        </div>
+      </div>
       <header className="sticky top-11 z-40 border-b border-slate-200 bg-white/90 backdrop-blur">
         <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 md:px-8">
           <div className="flex items-center gap-8">

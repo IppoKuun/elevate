@@ -25,22 +25,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} relative pt-11 antialiased`}
-      >
-        <div className="fixed left-0 top-0 z-50 h-11 w-full border-b border-amber-200 bg-amber-50/95 backdrop-blur">
-          <div className="mx-auto flex h-full max-w-7xl items-center justify-center px-3 text-center text-xs font-medium text-amber-900 md:text-sm">
-            Projet de démonstration, pour tester les paiements, utilisez la carte&nbsp;
-            <span className="rounded bg-amber-100 px-1.5 py-0.5 font-semibold tracking-wide">
-              4242 4242 4242 4242
-            </span>
-            &nbsp;(CVC:&nbsp;123, Exp:&nbsp;12/28)
-            <p className=""></p>
-          </div>
-        </div>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         {children}
         <Toaster position="top-right" richColors />
-
       </body>
     </html>
   );
