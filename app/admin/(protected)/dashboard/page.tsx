@@ -12,6 +12,7 @@ import {
 import { prisma } from "@/lib/db/prisma";
 import getSession from "@/lib/session";
 import { getStaffProfile } from "@/lib/rbac";
+import bootstrapOwner from "@/lib/bootstrap_owner";
 
 function formatRelativeDate(date: Date) {
   return new Intl.DateTimeFormat("fr-FR", {
@@ -25,6 +26,22 @@ export default async function AdminDashboardPage() {
 
   if (!session) {
     redirect("/admin/login");
+  }
+
+  const ownerEmail = process.env.OWNER_EMAIL?.toLowerCase();
+  const sessionEmail = session.user.email?.toLowerCase();
+
+  if (ownerEmail && sessionEmail === ownerEmail) {
+    const existingOwner = await prisma.staffProfile.findFirst({
+      where: {
+        OR: [{ email: sessionEmail }, { userId: session.user.id }],
+      },
+    });
+
+    if (!existingOwner) {
+      await bootstrapOwner();
+      redirect("/admin/dashboard");
+    }
   }
 
   const now = new Date();
