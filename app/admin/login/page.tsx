@@ -1,9 +1,10 @@
 "use client"
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { authClient } from "@/lib/auth-client"
 import Image from "next/image";
 
-export default function Login(){
+function LoginContent() {
     const params = useSearchParams();
     const callbackURL = params.get("callbackURL") ?? "/admin/dashboard";
     const handleLogin = async() => {
@@ -48,4 +49,12 @@ export default function Login(){
             </section>
         </main>
     )
+}
+
+export default function Login() {
+  return (
+    <Suspense fallback={null}>
+      <LoginContent />
+    </Suspense>
+  );
 }
