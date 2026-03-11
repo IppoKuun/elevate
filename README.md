@@ -258,11 +258,19 @@ Exemples :
 - `ADMIN` peut inviter un `VIEWER`
 - certaines actions critiques passent par `requireStaffRole(...)`
 
-## Notes importantes
+## IA Intégration
 
-- Le champ `priceCents` est stocke en centimes en base.
-- Les suppressions de cours peuvent etre bloquees si des achats sont lies (`onDelete: Restrict`).
-- Certains flux dependent de services externes reels (Stripe, Resend, Cloudinary, Microsoft).
-- Le projet est evolutif et sert aussi de bac a sable d'apprentissage : certaines zones peuvent etre encore en cours de stabilisation.
+### Les fonctionnalitées suivantes ont été faitent avec l'IA:
+
+- Les Layouts
+- Toute la page cours et ses composants
+- La page admin Dashboard
+- Les pages Legals
+- La majorité du Taiwlind a été créer par moi mais poli/affiner par l'IA
+
+
+
+
+
 
 
