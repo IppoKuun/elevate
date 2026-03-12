@@ -16,6 +16,15 @@ interface CoursManagerProps {
   currentPage: number;
 }
 
+function formatPrice(priceCents: number | null) {
+  if (priceCents == null) return "-";
+
+  return new Intl.NumberFormat("fr-FR", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(priceCents / 100);
+}
+
 export function CoursManager({ initialCours, canEdit, totalPage, currentPage }: CoursManagerProps) {
   const [courseToDelete, setCourseToDelete] = useState<Course | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -80,7 +89,7 @@ export function CoursManager({ initialCours, canEdit, totalPage, currentPage }: 
       {
         accessorKey: "priceCents",
         header: "Prix",
-        cell: ({ row }) => <span className="text-slate-600">{row.original.priceCents != null ? Number(row.original.priceCents) : "-"}</span>,
+        cell: ({ row }) => <span className="text-slate-600">{row.original.priceCents != null ? `${formatPrice(row.original.priceCents)} EUR` : "-"}</span>,
       },
       {
         accessorKey: "category",

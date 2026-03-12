@@ -22,6 +22,11 @@ type CourseFormState =
 
 const initialResult: CourseFormState = { ok: false, userMsg: "", error: {} };
 
+function formatPriceInput(priceCents?: number | null) {
+  if (priceCents == null) return "0";
+
+  return String(priceCents / 100);
+}
 
 export default function CoursForm({ coursToEdit, onSucces }: CourFormProps) {
   const actionToUse = coursToEdit ? updateCourseAction : createCoursAction;
@@ -29,7 +34,7 @@ export default function CoursForm({ coursToEdit, onSucces }: CourFormProps) {
   const [title, setTitle] = useState(coursToEdit?.title ?? "");
   const [description, setDescription] = useState(coursToEdit?.description ?? "");
   const [generatedContent, setGeneratedContent] = useState(coursToEdit?.content ?? "");
-  const [priceCents, setPriceCents] = useState(String(coursToEdit?.priceCents ?? 0));
+  const [priceCents, setPriceCents] = useState(formatPriceInput(coursToEdit?.priceCents));
   const [isPaid, setIsPaid] = useState(coursToEdit?.isPaid ?? false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedCat, setSelectedCat] = useState<CoursCategory>(coursToEdit?.category ?? categories[0]);
@@ -38,7 +43,7 @@ export default function CoursForm({ coursToEdit, onSucces }: CourFormProps) {
     setTitle(coursToEdit?.title ?? "");
     setDescription(coursToEdit?.description ?? "");
     setGeneratedContent(coursToEdit?.content ?? "");
-    setPriceCents(String(coursToEdit?.priceCents ?? 0));
+    setPriceCents(formatPriceInput(coursToEdit?.priceCents));
     setIsPaid(coursToEdit?.isPaid ?? false);
     setSelectedCat(coursToEdit?.category ?? categories[0]);
   }, [coursToEdit]);
@@ -181,10 +186,12 @@ async function handleGenerate(e: React.MouseEvent<HTMLButtonElement>) {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="flex-1">
-          <label className="mb-1 block text-sm font-medium text-slate-700">Prix (en centimes)</label>
+          <label className="mb-1 block text-sm font-medium text-slate-700">Prix (en euros)</label>
           <input
             name="priceCents"
             type="number"
+            step="0.01"
+            min="0"
             value={priceCents}
             onChange={(e) => setPriceCents(e.target.value)}
             className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"

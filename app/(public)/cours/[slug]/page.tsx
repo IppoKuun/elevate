@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Lock } from "lucide-react";
 import ReactMarkdown from 'react-markdown';
 import checkoutSession from "@/app/actions/action_stripe_chekout";
+import { CheckoutSubmitButton } from "../_components/CheckoutSubmitButton";
 
 interface PageProps {
   params: {
@@ -80,12 +81,10 @@ export default async function CoursSlugPage({ params }: PageProps) {
 
               </p>
               <form action={handleCheckout}>
-                <button
-                  type="submit"
-                  className="cursor-pointer rounded-xl bg-blue-600 px-8 py-3 text-base font-semibold text-white transition hover:bg-blue-500"
-                >
-                  Débloquer ce cours
-                </button>
+                <CheckoutSubmitButton
+                  className="rounded-xl bg-blue-600 px-8 py-3 text-base font-semibold text-white transition hover:bg-blue-500"
+                  idleLabel="Débloquer ce cours"
+                />
               </form>
             </div>
           )}

@@ -7,7 +7,7 @@ export default async function acceptanceAction(prevState: unknown, formData: For
   try {
     const token = formData.get("token");
     if (typeof token !== "string" || !token) {
-      return { ok: false, userMsg: "Lien invalide ou Token manquant." }; // pas de throw ici
+      return { ok: false, userMsg: "Lien invalide ou Token manquant." }; 
     }
 
     const ok = await acceptInvitation(token);

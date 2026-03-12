@@ -12,7 +12,7 @@ const globalForAuth = globalThis as unknown as {
 const authPool =
   globalForAuth.authPool ??
   new Pool({
-    connectionString: process.env.AUTH_DATABASE_URL!, // avec search_path=auth
+    connectionString: process.env.AUTH_DATABASE_URL!,
   });
 
 export const auth =

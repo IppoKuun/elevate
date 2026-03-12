@@ -84,6 +84,7 @@ model CoursePurchase {
   @@index([coursId])
   @@index([status])
   @@index([createdAt])
+  @@unique([authUserId, coursId])
   @@schema("app")
 }
 

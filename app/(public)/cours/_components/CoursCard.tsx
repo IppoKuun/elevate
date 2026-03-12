@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Lock } from "lucide-react";
 import { redirect } from "next/navigation";
 import checkoutSession from "@/app/actions/action_stripe_chekout";
+import { CheckoutSubmitButton } from "./CheckoutSubmitButton";
 
 interface CoursCardProps {
   cours: Cours;
@@ -55,12 +56,10 @@ export function CoursCard({ cours, isUnlocked }: CoursCardProps) {
                 {(cours.priceCents ?? 0) / 100} €
               </p>
               <form action={handleCheckout} className="w-full">
-                <button
-                  type="submit"
-                  className="w-full cursor-pointer rounded-xl bg-blue-600 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-500"
-                >
-                  Débloquer ce cours
-                </button>
+                <CheckoutSubmitButton
+                  className="w-full rounded-xl bg-blue-600 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-500"
+                  idleLabel="Débloquer ce cours"
+                />
               </form>
             </div>
           )}

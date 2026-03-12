@@ -1,22 +1,24 @@
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db/prisma";
 import AppError from "@/lib/error";
 import rateLimits from "@/lib/redisRateLimits";
 import getSession from "@/lib/session";
+import { redirect } from "next/navigation";
 import { stripe } from "@/lib/stripe";
 import { headers } from "next/headers";
 
 export default async function checkoutSession(coursId: string){
-    const userSession = await getSession()
-    if (!userSession){
-        throw new AppError("Utilisateur pas connecté")
-    }
-
     const coursToCheckout = await prisma.cours.findUnique({
         where : {id: coursId}
     })
 
     if (!coursToCheckout){
         throw new AppError("Cours introuvable")
+    }
+
+    const userSession = await getSession()
+    if (!userSession){
+        redirect(`/login?callbackUrl=${encodeURIComponent(`/cours/${coursToCheckout.slug}`)}`)
     }
 
     if (coursToCheckout.isPaid !== true ){
@@ -27,6 +29,20 @@ export default async function checkoutSession(coursId: string){
     } 
 
     const baseURL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+
+    const existingPurchase = await prisma.coursePurchase.findFirst({
+        where: {
+            authUserId: userSession.user.id,
+            coursId: coursToCheckout.id,
+        },
+        orderBy: {
+            createdAt: "desc",
+        },
+    })
+
+    if (existingPurchase?.status === "PAID") {
+        return {url: `${baseURL}/cours/${coursToCheckout.slug}`}
+    }
 
         const key = userSession.user.id as string|| (await headers()).get("x-forwarded-for") as string
         const limit = await rateLimits(key, 10, 60*60)
@@ -57,20 +73,66 @@ export default async function checkoutSession(coursId: string){
 
     })
 
-    await prisma.coursePurchase.create({
-        data:{
-            authUserId : userSession.user.id,
-            coursId: coursToCheckout.id,            
-            stripeCustomerId: stripeSession.customer as string,
-            amountCents: coursToCheckout.priceCents,
-            status: "PENDING",
-            stripeCheckoutSessionId: stripeSession.id,
-            currency: "eur",
-        }
-
-    })
-
     if (!stripeSession.url) throw new AppError("La session stripe n'as pas donnée d'URL")
+
+    const purchaseData = {
+        stripeCustomerId: typeof stripeSession.customer === "string" ? stripeSession.customer : null,
+        amountCents: coursToCheckout.priceCents,
+        status: "PENDING" as const,
+        stripeCheckoutSessionId: stripeSession.id,
+        stripePaymentIntentId: null,
+        currency: "eur",
+        paidAt: null,
+        refundedAt: null,
+    }
+
+    if (existingPurchase) {
+        await prisma.coursePurchase.update({
+            where: {
+                id: existingPurchase.id,
+            },
+            data: purchaseData,
+        })
+    } else {
+        try {
+            await prisma.coursePurchase.create({
+                data:{
+                    authUserId : userSession.user.id,
+                    coursId: coursToCheckout.id,
+                    ...purchaseData,
+                }
+
+            })
+        } catch (error) {
+            if (
+                error instanceof Prisma.PrismaClientKnownRequestError &&
+                error.code === "P2002"
+            ) {
+                const concurrentPurchase = await prisma.coursePurchase.findFirst({
+                    where: {
+                        authUserId: userSession.user.id,
+                        coursId: coursToCheckout.id,
+                    },
+                    orderBy: {
+                        createdAt: "desc",
+                    },
+                })
+
+                if (!concurrentPurchase) {
+                    throw error
+                }
+
+                await prisma.coursePurchase.update({
+                    where: {
+                        id: concurrentPurchase.id,
+                    },
+                    data: purchaseData,
+                })
+            } else {
+                throw error
+            }
+        }
+    }
 
     return {url : stripeSession.url}
 }
