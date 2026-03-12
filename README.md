@@ -267,4 +267,5 @@ Exemples :
 - La moitité du Webhook Stripe
 - La page admin Dashboard
 - Les pages Legals
+- 404
 - La majorité du Taiwlind a été créer par moi mais poli/affiner par l'IA

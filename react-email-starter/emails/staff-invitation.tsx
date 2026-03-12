@@ -10,14 +10,14 @@ import {
   Section,
   Text,
 } from '@react-email/components';
-import * as React from 'react';
+import { getAppUrl } from '@/lib/app-url';
 
 interface StaffInvitationEmailProps {
   invitedByEmail?: string;
   inviteUrl: string;
 }
 
-const baseUrl = process.env.NEXT_PUBLIC_URL || "http://localhost:3000";
+const baseUrl = getAppUrl();
 
 export const StaffInvitationEmail = ({
   invitedByEmail,
@@ -26,34 +26,35 @@ export const StaffInvitationEmail = ({
   <Html>
     <Head />
     <Body style={main}>
-      <Preview>Invitation à rejoindre l'équipe Elevate</Preview>
+      <Preview>Invitation a rejoindre l&apos;equipe Elevate</Preview>
       <Container style={container}>
         <Section style={box}>
-          <Img
-            src={`${baseUrl}/logo.png`}
-            width="180"
-            height="60"
-            alt="Elevate"
-            style={{ margin: "0 auto" }}
-          />
+          <Section style={brandWrap}>
+            <Img
+              src={`${baseUrl}/logoWbg.png`}
+              width="220"
+              alt="Elevate"
+              style={brandLogo}
+            />
+          </Section>
           <Hr style={hr} />
           <Text style={paragraph}>
             Bonjour,
           </Text>
           <Text style={paragraph}>
-            Vous avez été invité{invitedByEmail ? ` par ${invitedByEmail}` : ''} à rejoindre l'équipe d'administration sur <strong>Elevate</strong>.
+            Vous avez ete invite{invitedByEmail ? ` par ${invitedByEmail}` : ''} a rejoindre l&apos;equipe d&apos;administration sur <strong>Elevate</strong>.
           </Text>
           <Text style={paragraph}>
-            Cliquez sur le bouton ci-dessous pour accepter l'invitation et accéder à la page de validation :
+            Cliquez sur le bouton ci-dessous pour accepter l&apos;invitation et acceder a la page de validation :
           </Text>
           <Button style={button} href={inviteUrl}>
-            Accepter l'invitation
+            Accepter l&apos;invitation
           </Button>
           <Hr style={hr} />
           <Text style={paragraph}>
-            Si vous n'attendiez pas cette invitation, vous pouvez ignorer cet email. Ce lien est unique et sécurisé.
+            Si vous n&apos;attendiez pas cette invitation, vous pouvez ignorer cet email. Ce lien est unique et securise.
           </Text>
-          <Text style={footer}>— L'équipe Elevate</Text>
+          <Text style={footer}>- L&apos;equipe Elevate</Text>
         </Section>
       </Container>
     </Body>
@@ -82,6 +83,20 @@ const container = {
 
 const box = {
   padding: '0 48px',
+};
+
+const brandWrap = {
+  backgroundColor: '#f8fafc',
+  border: '1px solid #e2e8f0',
+  borderRadius: '18px',
+  padding: '18px 20px',
+  textAlign: 'center' as const,
+};
+
+const brandLogo = {
+  display: 'block',
+  height: 'auto',
+  margin: '0 auto',
 };
 
 const hr = {

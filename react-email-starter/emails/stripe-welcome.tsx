@@ -6,11 +6,11 @@ import {
   Hr,
   Html,
   Img,
-  Link,
   Preview,
   Section,
   Text,
 } from '@react-email/components';
+import { getAppUrl } from '@/lib/app-url';
 
 interface StripeWelcomeEmailProps {
   userName: string;
@@ -18,30 +18,41 @@ interface StripeWelcomeEmailProps {
   courseImageUrl?: string | null;
 }
 
-const baseUrl = process.env.NEXT_PUBLIC_URL || "http://localhost:3000/"
+const baseUrl = getAppUrl();
 
 export const StripeWelcomeEmail = ({
   userName,
   courseTitle,
   courseImageUrl,
 }: StripeWelcomeEmailProps) => {
-  const heroImage = courseImageUrl || `${baseUrl}/logo.png`;
+  const heroImage = courseImageUrl || `${baseUrl}/logoWbg.png`;
   const isCourseImage = Boolean(courseImageUrl);
 
   return (
     <Html>
       <Head />
       <Body style={main}>
-        <Preview>Félicitations ! Vous avez accès à votre cours {courseTitle}</Preview>
+        <Preview>Felicitations ! Vous avez acces a votre cours {courseTitle}</Preview>
         <Container style={container}>
           <Section style={box}>
-            <Img
-              src={heroImage}
-              width={isCourseImage ? "560" : "180"}
-              height={isCourseImage ? "220" : "60"}
-              alt={isCourseImage ? courseTitle : "Elevate"}
-              style={isCourseImage ? courseHeroImage : logoImage}
-            />
+            {isCourseImage ? (
+              <Img
+                src={heroImage}
+                width="560"
+                height="220"
+                alt={courseTitle}
+                style={courseHeroImage}
+              />
+            ) : (
+              <Section style={brandWrap}>
+                <Img
+                  src={heroImage}
+                  width="220"
+                  alt="Elevate"
+                  style={logoImage}
+                />
+              </Section>
+            )}
             <Hr style={hr} />
             <Text style={paragraph}>
               Bonjour {userName},
@@ -54,7 +65,7 @@ export const StripeWelcomeEmail = ({
               Accéder à mon espace membre
             </Button>
             <Hr style={hr} />
-            <Text style={paragraph}>— L'équipe de Ton App</Text>
+            <Text style={paragraph}>- L&apos;equipe de Ton App</Text>
           </Section>
         </Container>
       </Body>
@@ -81,7 +92,17 @@ const box = {
   padding: '0 48px',
 };
 
+const brandWrap = {
+  backgroundColor: '#f8fafc',
+  border: '1px solid #e2e8f0',
+  borderRadius: '18px',
+  padding: '18px 20px',
+  textAlign: 'center' as const,
+};
+
 const logoImage = {
+  display: 'block',
+  height: 'auto',
   margin: '0 auto',
 };
 
@@ -107,10 +128,6 @@ const paragraph = {
   textAlign: 'left' as const,
 };
 
-const anchor = {
-  color: '#556cd6',
-};
-
 const button = {
   backgroundColor: '#656ee8',
   borderRadius: '5px',
@@ -122,10 +139,4 @@ const button = {
   display: 'block',
   width: '100%',
   padding: '10px',
-};
-
-const footer = {
-  color: '#8898aa',
-  fontSize: '12px',
-  lineHeight: '16px',
 };
