@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { prisma } from "@/lib/db/prisma";
 import getSession from "@/lib/session";
-import { getStaffProfile } from "@/lib/rbac";
+import { requireStaff } from "@/lib/rbac";
 import bootstrapOwner from "@/lib/bootstrap_owner";
 
 function formatRelativeDate(date: Date) {
@@ -44,11 +44,15 @@ export default async function AdminDashboardPage() {
     }
   }
 
+  const access = await requireStaff().catch(() =>
+    redirect("/admin/login?callbackURL=/admin/dashboard")
+  );
+  const { staff } = access;
+
   const now = new Date();
   const last24Hours = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
   const [
-    staff,
     totalCourses,
     paidCourses,
     totalStaff,
@@ -56,7 +60,6 @@ export default async function AdminDashboardPage() {
     recentLogsCount,
     latestInvites,
   ] = await Promise.all([
-    getStaffProfile(),
     prisma.cours.count(),
     prisma.cours.count({ where: { isPaid: true } }),
     prisma.staffProfile.count(),

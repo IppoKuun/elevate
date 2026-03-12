@@ -22,7 +22,7 @@ export default async function PublicLayout({
           (CVC: 123, Exp: 12/28)
           <span className="text-amber-700">|</span>
           <span>Pour tester le backoffice :</span>
-          <Link href="/admin/dashboard" className="font-semibold underline decoration-amber-700 underline-offset-2 hover:text-amber-700">
+          <Link href="/admin/login" className="font-semibold underline decoration-amber-700 underline-offset-2 hover:text-amber-700">
             cliquez ici
           </Link>
         </div>
