@@ -1,15 +1,24 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import acceptanceAction from "@/app/actions/actions_acceptance";
 
 
-type ActionResult = {ok:false; userMsg?: string} | {ok:true; userMsg:string} ;
+type ActionResult = {ok:false; userMsg?: string} | {ok:true} ;
 
 const initialResult : ActionResult = {ok:false}
 
 export function AcceptForm({ token, email }: { token: string; email: string }) {
+  const router = useRouter();
   const [result, formAction, isPending] = useActionState(acceptanceAction, initialResult);
+
+  useEffect(() => {
+    if (result.ok) {
+      router.replace("/admin/dashboard");
+      router.refresh();
+    }
+  }, [result, router]);
 
   return (
     <form
@@ -17,7 +26,7 @@ export function AcceptForm({ token, email }: { token: string; email: string }) {
       aria-busy={isPending}
       className="w-full max-w-lg rounded-2xl border border-slate-200/60 bg-white/85 backdrop-blur shadow-2xl px-8 py-10 space-y-6 text-slate-900"
     >
-      {/* On cache le token dans un input pour qu'il parte avec le formulaire */}
+      {/* ICI ON CACHE token dans un input pour qu'il parte avec le formulaire !*/}
       <input type="hidden" name="token" value={token} />
 
       <div className="space-y-2">
