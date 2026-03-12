@@ -27,6 +27,7 @@ function formatPrice(priceCents: number | null) {
 
 export function CoursManager({ initialCours, canEdit, totalPage, currentPage }: CoursManagerProps) {
   const [courseToDelete, setCourseToDelete] = useState<Course | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [coursToEdit, setCoursToEdit] = useState<Course | null>(null);
 
@@ -51,16 +52,22 @@ export function CoursManager({ initialCours, canEdit, totalPage, currentPage }: 
   }
 
   async function handleConfirmDelete(id: string) {
-    const actionDelete = await deleteCoursAction(id);
+    setIsDeleting(true);
 
-    if (actionDelete?.ok) {
-      toast.success("Cours supprime avec succes");
-      setCourseToDelete(null);
-      router.refresh();
-      return;
+    try {
+      const actionDelete = await deleteCoursAction(id);
+
+      if (actionDelete?.ok) {
+        toast.success("Cours supprime avec succes");
+        setCourseToDelete(null);
+        router.refresh();
+        return;
+      }
+
+      toast.error(actionDelete?.userMsg ?? "Suppression impossible");
+    } finally {
+      setIsDeleting(false);
     }
-
-    toast.error(actionDelete?.userMsg ?? "Suppression impossible");
   }
 
   const handleCreate = () => {
@@ -258,21 +265,23 @@ export function CoursManager({ initialCours, canEdit, totalPage, currentPage }: 
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 p-4">
           <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-xl">
             <p className="mb-1 text-base font-semibold text-slate-900">Confirmer la suppression</p>
-            <p className="mb-4 text-sm text-slate-600">Supprimer le cours "{courseToDelete.title}" ?</p>
+            <p className="mb-4 text-sm text-slate-600">Supprimer le cours &quot;{courseToDelete.title}&quot; ?</p>
             <div className="flex justify-end gap-2">
               <button
                 type="button"
-                className="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 transition hover:bg-slate-100"
+                disabled={isDeleting}
+                className="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
                 onClick={() => setCourseToDelete(null)}
               >
                 Annuler
               </button>
               <button
                 type="button"
-                className="rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-red-700"
+                disabled={isDeleting}
+                className="rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-red-400"
                 onClick={() => handleConfirmDelete(courseToDelete.id)}
               >
-                Supprimer
+                {isDeleting ? "Suppression..." : "Supprimer"}
               </button>
             </div>
           </div>

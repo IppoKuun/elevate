@@ -6,6 +6,7 @@ import { useState } from "react"
 import { fr } from 'date-fns/locale';
 import { formatDistanceToNow } from 'date-fns';
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 interface invitedListProps {
         inviteList: StaffInvitation[],
@@ -14,11 +15,25 @@ interface invitedListProps {
 
 export default function InvitedList({inviteList, totalInvite}: invitedListProps ){
     const [inviteToRevoke, setInviteToRevoke] = useState<StaffInvitation | null>(null)
+    const [isRevoking, setIsRevoking] = useState(false)
+    const router = useRouter()
 
     const handleRevok = async(id:string) => {
-        const result = await revokedAction(id);
-        if (!result.ok){
-            toast.error(result?.userMsg)
+        setIsRevoking(true)
+
+        try {
+            const result = await revokedAction(id);
+
+            if (!result.ok){
+                toast.error(result?.userMsg)
+                return
+            }
+
+            toast.success("Invitation revoquee avec succes")
+            setInviteToRevoke(null)
+            router.refresh()
+        } finally {
+            setIsRevoking(false)
         }
     }
 
@@ -81,21 +96,23 @@ export default function InvitedList({inviteList, totalInvite}: invitedListProps 
                 <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 p-4">
                     <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-xl">
                         <p className="mb-1 text-base font-semibold text-slate-900">Confirmer la révocation</p>
-                        <p className="mb-4 text-sm text-slate-600">Révoquer l'invitation pour "{inviteToRevoke?.email}" ?</p>
+                        <p className="mb-4 text-sm text-slate-600">Revoquer l&apos;invitation pour &quot;{inviteToRevoke?.email}&quot; ?</p>
                         <div className="flex justify-end gap-2">
                         <button
                             type="button"
-                            className="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 transition hover:bg-slate-100"
+                            disabled={isRevoking}
+                            className="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
                             onClick={() => setInviteToRevoke(null)}
                         >
                             Annuler
                         </button>
                         <button
                             type="button"
-                            className="rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-red-700"
+                            disabled={isRevoking}
+                            className="rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-red-400"
                             onClick={() => handleRevok(inviteToRevoke.id)}
                         >
-                            Révoquer
+                            {isRevoking ? "Revocation..." : "Revoquer"}
                         </button>
                         </div>
                     </div>
