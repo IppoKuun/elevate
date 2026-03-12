@@ -50,9 +50,10 @@ export async function createInvitation(email: string , role : StaffRoles){
     })
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const inviteUrl = `${baseUrl}/admin/acceptance?token=${token}`;
+    let warningMsg: string | undefined
 
-  
-           const {error} = await resend.emails.send({
+    try {
+        const {error} = await resend.emails.send({
             from: process.env.RESEND_FROM_EMAIL as string,
             to:targetEmail,
             subject:"Invitation ELEVATE",
@@ -60,16 +61,23 @@ export async function createInvitation(email: string , role : StaffRoles){
                 invitedByEmail, inviteUrl
             })
         })
+
         if (error){
-            await prisma.staffInvitation.delete({
-                where:{id: invitationQuery.id}                
-            })
-            console.log(error.message)
-            throw new AppError("Echec de l'envoie de l'email, veuillez retentez.");
+            console.error("[invitation] resend error:", error)
+            warningMsg = "Invitation effectuee, mais l'email n'a pas ete envoye. Partagez le lien manuellement."
         }
+    } catch (err) {
+        console.error("[invitation] resend exception:", err)
+        warningMsg = "Invitation effectuee, mais l'email n'a pas ete envoye. Partagez le lien manuellement."
+    }
 
-
-    return {token, inviteUrl, targetEmail : invitationQuery.email , invitationQueryId : invitationQuery.id}
+    return {
+        token,
+        inviteUrl,
+        targetEmail : invitationQuery.email,
+        invitationQueryId : invitationQuery.id,
+        warningMsg,
+    }
 }
 
 

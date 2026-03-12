@@ -31,7 +31,14 @@ export async function inviteStaffAction (prevState: unknown, formData : FormData
           entityId: result.invitationQueryId,
           metadata: result.targetEmail
         })
-        return {ok:true, token :result.token, email, role, inviteUrl: result.inviteUrl };
+        return {
+          ok:true,
+          token :result.token,
+          email,
+          role,
+          inviteUrl: result.inviteUrl,
+          warningMsg: result.warningMsg,
+        };
     }catch (err : any){
       console.error(err);
       if (err instanceof AppError) {

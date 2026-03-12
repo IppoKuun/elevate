@@ -89,27 +89,37 @@ export async function POST(req : NextRequest){
         })
         const customerEmail = session.customer_details?.email
         const customerName = session.customer_details?.name
-        if (valide){
-           const { error } = await resend.emails.send({
-                from:`${process.env.RESEND_FROM_EMAIL}`,
-                to: customerEmail as string,
-                subject: `Accès à ${valide.course.title}`,
-                react: StripeWelcomeEmail({ 
-                    userName: customerName as string, 
-                    courseTitle: valide.course.title,
-                    courseImageUrl: valide.course.thumbnailUrl
-                }),
-            })
+        let mailWarning: string | null = null
 
-            if (error) {
-                throw new Error(error.message)
+        if (valide && customerEmail){
+            try {
+                const { error } = await resend.emails.send({
+                    from:`${process.env.RESEND_FROM_EMAIL}`,
+                    to: customerEmail,
+                    subject: `Acces a ${valide.course.title}`,
+                    react: StripeWelcomeEmail({ 
+                        userName: customerName as string, 
+                        courseTitle: valide.course.title,
+                        courseImageUrl: valide.course.thumbnailUrl
+                    }),
+                })
+
+                if (error) {
+                    mailWarning = `[WEBHOOK ROUTE] Email de bienvenue non envoye: ${error.message}`
+                    console.error(mailWarning)
+                }
+            } catch (error: any) {
+                mailWarning = `[WEBHOOK ROUTE] Exception lors de l'envoi du mail: ${error?.message ?? "Erreur inconnue"}`
+                console.error(mailWarning, error)
             }
         }
 
         await prisma.webhookEvent.update({
             where:{eventId: event.id},
             data:{
-                status:"PROCESSED"
+                status:"PROCESSED",
+                processedAt: new Date(),
+                lastError: mailWarning,
             }
         })
 

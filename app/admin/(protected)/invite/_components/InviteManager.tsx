@@ -3,9 +3,9 @@ import { inviteStaffAction } from "@/app/admin/(protected)/invite/action"
 import { useActionState, useEffect, useState, Fragment } from "react"
 import { Listbox, Transition, Dialog } from "@headlessui/react"
 import { TriangleAlert } from "lucide-react"
-import { prisma } from "@/lib/db/prisma"
 import { StaffInvitation } from "@prisma/client"
 import InvitedList from "./invitedList"
+import { toast } from "sonner"
 
 
 interface inviteListProps {
@@ -14,7 +14,7 @@ interface inviteListProps {
 }
 
 type servActionResult = {ok: false; userMsg: string} |
-{ok: true; inviteUrl: string; token: string};
+{ok: true; inviteUrl: string; token: string; warningMsg?: string};
   
 
 const initialResult = {ok: false, userMsg:""}
@@ -27,7 +27,6 @@ export default function InviteManager({inviteList, totalInvite}: inviteListProps
   const roles = ["ADMIN", "VIEWER"]
   const [selectedRole, setSelectedRole] = useState(roles[0])
   const [errorKey, setErrorKey] = useState(0);
-  const [email, setEmail] = useState("");
 
 
   useEffect(() => {
@@ -45,6 +44,12 @@ export default function InviteManager({inviteList, totalInvite}: inviteListProps
   useEffect(() => {
   if (result.ok) setOpen(true);
 }, [result]);
+
+  useEffect(() => {
+    if (result.ok && result.warningMsg) {
+      toast.warning(result.warningMsg);
+    }
+  }, [result]);
 
   
 
@@ -143,6 +148,12 @@ export default function InviteManager({inviteList, totalInvite}: inviteListProps
                 <Dialog.Description className="mt-1 text-sm text-slate-600">
                   Veuillez copier le lien ci-dessous
                 </Dialog.Description>
+
+                {result.warningMsg ? (
+                  <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
+                    {result.warningMsg}
+                  </div>
+                ) : null}
 
                 <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
                   <code className="break-all">{result.inviteUrl}</code>
