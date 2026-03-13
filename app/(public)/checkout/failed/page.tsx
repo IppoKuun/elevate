@@ -2,16 +2,16 @@ import Link from "next/link";
 
 export default function CheckoutPage() {
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-10 md:px-8">
-      <section className="mx-auto w-full max-w-3xl overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
-        <div className="border-b border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 px-6 py-10 text-white md:px-10">
-          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-blue-200">
+    <main className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(251,191,36,0.14),_transparent_32%),linear-gradient(to_bottom,_#f8fafc,_#eff6ff)] px-4 py-10 md:px-8">
+      <section className="mx-auto w-full max-w-3xl overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-[0_24px_60px_-28px_rgba(15,23,42,0.25)]">
+        <div className="border-b border-amber-100 bg-gradient-to-br from-amber-50 via-white to-blue-50 px-6 py-10 md:px-10">
+          <p className="inline-flex rounded-full border border-amber-200 bg-amber-100/80 px-3 py-1 text-xs font-semibold uppercase tracking-[0.25em] text-amber-800">
             Paiement
           </p>
-          <h1 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">
+          <h1 className="mt-4 text-3xl font-semibold tracking-tight text-slate-950 md:text-4xl">
             Checkout interrompu
           </h1>
-          <p className="mt-3 max-w-2xl text-sm text-slate-200 md:text-base">
+          <p className="mt-3 max-w-2xl text-sm text-slate-600 md:text-base">
             Votre paiement n&apos;a pas ete finalise. Aucun acces n&apos;a ete debloque.
             Vous pouvez revenir au catalogue, verifier le cours choisi, puis relancer
             l&apos;achat quand vous le souhaitez.
