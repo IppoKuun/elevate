@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 import acceptanceAction from "@/app/actions/actions_acceptance";
 
 
-type ActionResult = {ok:false; userMsg?: string} | {ok:true} ;
+type ActionResult = {ok:false; userMsg?: string} | {ok:true, userMsg?:""} ;
 
-const initialResult : ActionResult = {ok:false}
+const initialResult : ActionResult = {ok:false, userMsg:""}
 
 export function AcceptForm({ token, email }: { token: string; email: string }) {
   const router = useRouter();
