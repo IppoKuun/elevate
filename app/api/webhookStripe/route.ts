@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db/prisma";
 import { resend } from "@/lib/resend";
 import { stripe } from "@/lib/stripe";
@@ -17,7 +18,14 @@ export async function POST(req : NextRequest){
          event = stripe.webhooks.constructEvent(
             body, signature, process.env.STRIPE_WEBHOOK_SECRET as string
         )
-    }catch (error: any){
+    }catch (error: unknown){
+        console.error("[WEBHOOK ROUTE] Signature Stripe invalide", {
+            message: error instanceof Error ? error.message : "Erreur inconnue",
+            hasSignatureHeader: Boolean(signature),
+            bodyLength: body.length,
+            endpoint: req.nextUrl.pathname,
+            webhookSecretConfigured: Boolean(process.env.STRIPE_WEBHOOK_SECRET),
+        })
         return NextResponse.json({
         message : "[WEBHOOK ROUTE] : Evenement webhook ne matchent pas", 
         }, {
@@ -42,7 +50,10 @@ export async function POST(req : NextRequest){
     if (!existingEvent) {
         await prisma.webhookEvent.create({
             data:{
-                eventId: event.id, eventType : event.type, status:"RECEIVED", payload: event as any
+                eventId: event.id,
+                eventType : event.type,
+                status:"RECEIVED",
+                payload: event as unknown as Prisma.InputJsonValue
             }
         })
     } else {
@@ -108,8 +119,8 @@ export async function POST(req : NextRequest){
                     mailWarning = `[WEBHOOK ROUTE] Email de bienvenue non envoye: ${error.message}`
                     console.error(mailWarning)
                 }
-            } catch (error: any) {
-                mailWarning = `[WEBHOOK ROUTE] Exception lors de l'envoi du mail: ${error?.message ?? "Erreur inconnue"}`
+            } catch (error: unknown) {
+                mailWarning = `[WEBHOOK ROUTE] Exception lors de l'envoi du mail: ${error instanceof Error ? error.message : "Erreur inconnue"}`
                 console.error(mailWarning, error)
             }
         }
@@ -124,17 +135,17 @@ export async function POST(req : NextRequest){
         })
 
         return NextResponse.json( 'OK', {status :200})
-    } catch (error: any) {
+    } catch (error: unknown) {
         await prisma.webhookEvent.update({
             where: { eventId: event.id },
             data: {
                 status: "FAILED",
-                lastError: error?.message ?? "Erreur inconnue webhook Stripe",
+                lastError: error instanceof Error ? error.message : "Erreur inconnue webhook Stripe",
             }
         })
 
         return NextResponse.json({
-            message: error?.message ?? "[WEBHOOK ROUTE] : Traitement impossible",
+            message: error instanceof Error ? error.message : "[WEBHOOK ROUTE] : Traitement impossible",
         }, {
             status: 500
         })

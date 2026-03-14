@@ -2,8 +2,14 @@ import { prisma } from "@/lib/db/prisma"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import CheckoutSuccesWatcher from "../../_components/checkoutSuccesWatcher"
+import getSession from "@/lib/session"
 
 export default async function succesCheckout({searchParams} : {searchParams : Promise<{session_id : string}>}){
+    const userSession = await getSession()
+
+    if (!userSession){
+        redirect("/login")
+    }
 
     const session_id = (await searchParams).session_id
 
@@ -46,6 +52,10 @@ export default async function succesCheckout({searchParams} : {searchParams : Pr
 
     if (achat?.status === "PAID"){
         redirect(`/cours/${achat.course.slug}`)
+    }
+
+    if (achat?.authUserId !== userSession?.user.id){
+        redirect("Cours")
     }
 
     if (!achat){
