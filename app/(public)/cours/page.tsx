@@ -68,7 +68,7 @@ export default async function CoursPage({ searchParams }: PageProps) {
 
   if (type === "paid") where.isPaid = true;
   if (type === "free") {
-    where.OR = [{ isPaid: false }, { isPaid: null }];
+    where.OR = [{ isPaid: false }, { isPaid: false }];
   }
 
   const sortOrder = sort === "asc" ? "asc" : "desc";
