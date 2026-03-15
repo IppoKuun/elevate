@@ -16,7 +16,7 @@ export default function PublicNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="flex items-center gap-2">
+    <nav className="flex flex-wrap items-center gap-2">
       {links.map((link) => {
         const active = isActivePath(pathname, link.href);
 
