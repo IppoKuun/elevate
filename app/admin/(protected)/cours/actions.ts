@@ -179,11 +179,15 @@ export async function deleteCoursAction(id: string){
     await requireStaffRole("ADMIN");
 
     const cours = await prisma.cours.findUnique({
-        where: { id },
+        where: { id }, include:{purchases: true}
     });
 
     if (!cours) {
         return {ok:false, userMsg:"Cours introuvable"}
+    }
+
+    if (cours.purchases){
+        return {ok: false, userMsg:"Le cours est acheté, vous ne pouvez donc pas supprimé le cours"}
     }
 
     const deleted = await prisma.cours.delete({

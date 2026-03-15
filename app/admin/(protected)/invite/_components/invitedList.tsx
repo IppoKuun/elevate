@@ -17,6 +17,7 @@ export default function InvitedList({inviteList, totalInvite}: invitedListProps 
     const [inviteToRevoke, setInviteToRevoke] = useState<StaffInvitation | null>(null)
     const [isRevoking, setIsRevoking] = useState(false)
     const router = useRouter()
+    const now = new Date()
 
     const handleRevok = async(id:string) => {
         setIsRevoking(true)
@@ -47,50 +48,62 @@ export default function InvitedList({inviteList, totalInvite}: invitedListProps 
             </div>
 
             <div className="w-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-                <table className="w-full border-collapse text-left text-sm">
-                    <thead className="bg-slate-50/80 text-slate-500">
-                        <tr>
-                            <th className="px-4 py-3 font-medium">Mail</th>
-                            <th className="px-4 py-3 font-medium">Role</th>
-                            <th className="px-4 py-3 font-medium">Date</th>
-                            <th className="px-4 py-3 font-medium">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                        {Object.keys(inviteList).length === 0 && (
+                <div className="overflow-x-auto [-webkit-overflow-scrolling:touch]">
+                    <table className="min-w-[720px] w-full border-collapse text-left text-sm">
+                        <thead className="bg-slate-50/80 text-slate-500">
                             <tr>
-                                <td colSpan={4} className="px-4 py-10 text-center text-slate-500">
-                                    Aucune invitation trouvée
-                                </td>
+                                <th className="px-4 py-3 font-medium">Mail</th>
+                                <th className="px-4 py-3 font-medium">Role</th>
+                                <th className="px-4 py-3 font-medium">Date</th>
+                                <th className="px-4 py-3 font-medium">Actions</th>
                             </tr>
-                        )}
-                        {inviteList.map((invited) => (
-                            <tr key={invited.id} className="transition hover:bg-slate-50/70">
-                                <td className="px-4 py-3 text-slate-800">{invited.email}</td>
-                                <td className="px-4 py-3">
-                                    <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-700">
-                                        {invited.role}
-                                    </span>
-                                </td>
-                                <td className="px-4 py-3 text-slate-600">
-                                    {formatDistanceToNow(invited.createdAt, { addSuffix: true, locale: fr })}
-                                </td>
-                                {invited.revokeAt ? (
-                                    <td className="px-4 py-3 text-slate-500">Révoquer le :{invited.revokeAt.toLocaleString()}</td>
-                                ):(
-                                    <button
-                                    onClick={() => setInviteToRevoke(invited)}
-                                    className="rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-medium text-red-700 transition hover:border-red-300 hover:bg-red-100"
-                                    >
-                                        Révoquer
-                                    </button>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                            {inviteList.length === 0 && (
+                                <tr>
+                                    <td colSpan={4} className="px-4 py-10 text-center text-slate-500">
+                                        Aucune invitation trouvée
+                                    </td>
+                                </tr>
+                            )}
+                            {inviteList.map((invited) => {
+                                const isExpired = invited.expiredAt <= now
 
-                                )}
-                            </tr>
-                        ))}
-
-                    </tbody>
-                </table>
+                                return (
+                                    <tr key={invited.id} className="transition hover:bg-slate-50/70">
+                                        <td className="px-4 py-3 text-slate-800">{invited.email}</td>
+                                        <td className="px-4 py-3">
+                                            <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-700">
+                                                {invited.role}
+                                            </span>
+                                        </td>
+                                        <td className="px-4 py-3 text-slate-600">
+                                            {formatDistanceToNow(invited.createdAt, { addSuffix: true, locale: fr })}
+                                        </td>
+                                        <td className="px-4 py-3 text-slate-500">
+                                            {invited.acceptedAt ? (
+                                                <span className="text-emerald-700">
+                                                    Acceptee le {invited.acceptedAt.toLocaleString()}
+                                                </span>
+                                            ) : invited.revokeAt ? (
+                                                <span>Revoquee le {invited.revokeAt.toLocaleString()}</span>
+                                            ) : isExpired ? (
+                                                <span className="text-amber-700">Invitation expiree</span>
+                                            ) : (
+                                                <button
+                                                    onClick={() => setInviteToRevoke(invited)}
+                                                    className="rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-medium text-red-700 transition hover:border-red-300 hover:bg-red-100"
+                                                >
+                                                    Revoquer
+                                                </button>
+                                            )}
+                                        </td>
+                                    </tr>
+                                )
+                            })}
+                        </tbody>
+                    </table>
+                </div>
             </div>
             {inviteToRevoke && (
                 <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 p-4">

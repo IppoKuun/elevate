@@ -6,6 +6,7 @@ import { StaffRoles } from "@prisma/client";
 import { z } from "zod";
 import { prisma } from "@/lib/db/prisma";
 import createLogs from "@/lib/newLogs";
+import { requireStaffRole } from "@/lib/rbac";
 
 const schema = z.object ({
     email : z.email(),
@@ -14,6 +15,8 @@ const schema = z.object ({
 
 
 export async function inviteStaffAction (prevState: unknown, formData : FormData){
+    await requireStaffRole("ADMIN")
+
     const schemaParse = schema.safeParse({
         email: formData.get("email"),
         role: formData.get("role"),
@@ -39,7 +42,7 @@ export async function inviteStaffAction (prevState: unknown, formData : FormData
           inviteUrl: result.inviteUrl,
           warningMsg: result.warningMsg,
         };
-    }catch (err : any){
+    }catch (err : unknown){
       console.error(err);
       if (err instanceof AppError) {
         return { ok: false, userMsg: err.message };
@@ -49,6 +52,28 @@ export async function inviteStaffAction (prevState: unknown, formData : FormData
 }
 
 export async function revokedAction(id: string){
+  await requireStaffRole("ADMIN")
+
+  const invitation = await prisma.staffInvitation.findUnique({
+    where: { id },
+  })
+
+  if (!invitation) {
+    return { ok: false, userMsg: "Invitation introuvable." }
+  }
+
+  if (invitation.acceptedAt) {
+    return { ok: false, userMsg: "Impossible de revoquer une invitation deja acceptee." }
+  }
+
+  if (invitation.revokeAt) {
+    return { ok: false, userMsg: "Cette invitation est deja revoquee." }
+  }
+
+  if (invitation.expiredAt <= new Date()) {
+    return { ok: false, userMsg: "Cette invitation a deja expire." }
+  }
+
   const revoke = await prisma.staffInvitation.update({
     where: {id},
     data: {

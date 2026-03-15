@@ -7,7 +7,7 @@ import checkoutSession from "@/app/actions/action_stripe_chekout";
 import { CheckoutSubmitButton } from "./CheckoutSubmitButton";
 
 interface CoursCardProps {
-  cours: Cours;
+  cours: Pick<Cours, "id" | "slug" | "thumbnailUrl" | "title" | "description" | "priceCents" | "isPaid">;
   isUnlocked: boolean;
 }
 

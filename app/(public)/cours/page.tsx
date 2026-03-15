@@ -67,14 +67,21 @@ export default async function CoursPage({ searchParams }: PageProps) {
   }
 
   if (type === "paid") where.isPaid = true;
-  if (type === "free") {
-    where.OR = [{ isPaid: false }, { isPaid: false }];
-  }
+  if (type === "free") where.isPaid = false;
 
   const sortOrder = sort === "asc" ? "asc" : "desc";
 
   const courses = await prisma.cours.findMany({
     where,
+    select: {
+      id: true,
+      slug: true,
+      thumbnailUrl: true,
+      title: true,
+      description: true,
+      priceCents: true,
+      isPaid: true,
+    },
     orderBy: { createdAt: sortOrder },
   });
 

@@ -17,7 +17,6 @@ const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/web
 
 export const priceCentsSchema = z
     .number()
-    .int()
     .max(2000000, "Prix trop elevée" )
     .min(0, "Prix trop bas")
 

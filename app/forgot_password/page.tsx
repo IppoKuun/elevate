@@ -1,9 +1,8 @@
 "use client"
 import { useState } from "react"
 import { toast } from "sonner"
-import { authClient } from "@/lib/auth-client"
 
-export default function forgotPassword(){
+export default function ForgotPassword(){
     const [email, setEmail] = useState<string>("")
     const [sent, setSent] = useState(false)
     const [loading, setLoading] = useState(false)
@@ -11,21 +10,31 @@ export default function forgotPassword(){
     const handleSubmit = async (e : React.FormEvent) => {
         e.preventDefault()
         setLoading(true)
-        const appURL = process.env.NEXT_PUBLIC_APP_URL || window.location.origin
-        await authClient.requestPasswordReset({
-            email,
-            redirectTo: `${appURL}/reset-password`
-        }, {
-            onSuccess : () => {
-                setSent(true)
-                toast.success("L'email de reinitialisation a bien été envoyé.")
-            }, onError: (ctx) => {
-                toast.error(ctx.error.message)
-            },
-            onResponse: () => {
-                setLoading(false)
+
+        try {
+            const response = await fetch("/api/forgot-password", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ email }),
+            })
+
+            const result = await response.json()
+
+            if (!response.ok || !result.ok) {
+                toast.error(result.userMsg ?? "Impossible d'envoyer le lien de reinitialisation.")
+                return
             }
-        })
+
+            setSent(true)
+            toast.success(result.userMsg ?? "Si l'email existe, un lien de reinitialisation vient d'etre envoye.")
+        } catch (error) {
+            console.error("[forgot-password] request failed:", error)
+            toast.error("Impossible d'envoyer le lien de reinitialisation pour le moment.")
+        } finally {
+            setLoading(false)
+        }
     }
     return(
         <main className="min-h-screen flex flex-col justify-center items-center px-4 bg-slate-50">
@@ -47,7 +56,7 @@ export default function forgotPassword(){
                 </button>
                 {sent && (
                     <p className="mt-4 text-sm text-slate-600 text-center">
-                        Si l'email existe, un lien de reinitialisation vient d'etre envoye.
+                        Si l&apos;email existe, un lien de reinitialisation vient d&apos;etre envoye.
                     </p>
                 )}
 

@@ -198,37 +198,39 @@ export function CoursManager({ initialCours, canEdit, totalPage, currentPage }: 
           </div>
         </div>
 
-        <table className="w-full border-collapse text-left text-sm">
-          <thead className="bg-white text-slate-500">
-            {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <th key={header.id} className="px-4 py-3 font-medium">
-                    {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {table.getRowModel().rows.length === 0 && (
-              <tr>
-                <td colSpan={table.getAllLeafColumns().length} className="px-4 py-12 text-center text-sm text-slate-500">
-                  Aucun cours present en base de donnees
-                </td>
-              </tr>
-            )}
-            {table.getRowModel().rows.map((row) => (
-              <tr key={row.id} className="transition hover:bg-slate-50/70">
-                {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} className="px-4 py-3">
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+        <div className="overflow-x-auto [-webkit-overflow-scrolling:touch]">
+          <table className="min-w-[760px] w-full border-collapse text-left text-sm">
+            <thead className="bg-white text-slate-500">
+              {table.getHeaderGroups().map((headerGroup) => (
+                <tr key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <th key={header.id} className="px-4 py-3 font-medium">
+                      {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                    </th>
+                  ))}
+                </tr>
+              ))}
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {table.getRowModel().rows.length === 0 && (
+                <tr>
+                  <td colSpan={table.getAllLeafColumns().length} className="px-4 py-12 text-center text-sm text-slate-500">
+                    Aucun cours present en base de donnees
                   </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </tr>
+              )}
+              {table.getRowModel().rows.map((row) => (
+                <tr key={row.id} className="transition hover:bg-slate-50/70">
+                  {row.getVisibleCells().map((cell) => (
+                    <td key={cell.id} className="px-4 py-3">
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
         <div className="flex items-center justify-between border-t border-slate-200 bg-slate-50 px-4 py-3">
           <button

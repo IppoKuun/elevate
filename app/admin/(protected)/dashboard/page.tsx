@@ -302,57 +302,59 @@ export default async function AdminDashboardPage() {
           </div>
 
           <div className="overflow-hidden rounded-2xl border border-slate-200">
-            <table className="w-full border-collapse text-left text-sm">
-              <thead className="bg-slate-50 text-slate-500">
-                <tr>
-                  <th className="px-4 py-3 font-medium">Email</th>
-                  <th className="px-4 py-3 font-medium">Role</th>
-                  <th className="px-4 py-3 font-medium">Invite par</th>
-                  <th className="px-4 py-3 font-medium">Etat</th>
-                  <th className="px-4 py-3 font-medium">Creation</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {latestInvites.length === 0 && (
+            <div className="overflow-x-auto [-webkit-overflow-scrolling:touch]">
+              <table className="min-w-[820px] w-full border-collapse text-left text-sm">
+                <thead className="bg-slate-50 text-slate-500">
                   <tr>
-                    <td colSpan={5} className="px-4 py-10 text-center text-slate-500">
-                      Aucune invitation recente.
-                    </td>
+                    <th className="px-4 py-3 font-medium">Email</th>
+                    <th className="px-4 py-3 font-medium">Role</th>
+                    <th className="px-4 py-3 font-medium">Invite par</th>
+                    <th className="px-4 py-3 font-medium">Etat</th>
+                    <th className="px-4 py-3 font-medium">Creation</th>
                   </tr>
-                )}
-
-                {latestInvites.map((invite) => {
-                  const status = invite.revokeAt
-                    ? "Revoquee"
-                    : invite.acceptedAt
-                      ? "Acceptee"
-                      : invite.expiredAt <= now
-                        ? "Expiree"
-                        : "Active";
-
-                  return (
-                    <tr key={invite.id} className="hover:bg-slate-50/70">
-                      <td className="px-4 py-3 text-slate-800">{invite.email}</td>
-                      <td className="px-4 py-3 text-slate-600">{invite.role}</td>
-                      <td className="px-4 py-3 text-slate-600">
-                        {invite.InvitedBy.name}
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-700">
-                          {status}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-slate-500">
-                        <span className="inline-flex items-center gap-2">
-                          <Clock3 size={14} />
-                          {formatRelativeDate(invite.createdAt)}
-                        </span>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {latestInvites.length === 0 && (
+                    <tr>
+                      <td colSpan={5} className="px-4 py-10 text-center text-slate-500">
+                        Aucune invitation recente.
                       </td>
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                  )}
+
+                  {latestInvites.map((invite) => {
+                    const status = invite.revokeAt
+                      ? "Revoquee"
+                      : invite.acceptedAt
+                        ? "Acceptee"
+                        : invite.expiredAt <= now
+                          ? "Expiree"
+                          : "Active";
+
+                    return (
+                      <tr key={invite.id} className="hover:bg-slate-50/70">
+                        <td className="px-4 py-3 text-slate-800">{invite.email}</td>
+                        <td className="px-4 py-3 text-slate-600">{invite.role}</td>
+                        <td className="px-4 py-3 text-slate-600">
+                          {invite.InvitedBy.name}
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-700">
+                            {status}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-slate-500">
+                          <span className="inline-flex items-center gap-2">
+                            <Clock3 size={14} />
+                            {formatRelativeDate(invite.createdAt)}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
         </section>
       </div>
