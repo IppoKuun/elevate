@@ -6,20 +6,8 @@ import { i18n } from "@better-auth/i18n";
 import { authTranslations } from "./auth-i18n";
 
 
-const globalForAuth = globalThis as unknown as {
-  authPool?: Pool;
-  authInstance?: ReturnType<typeof betterAuth>;
-};
-
-const authPool =
-  globalForAuth.authPool ??
-  new Pool({
-    connectionString: process.env.AUTH_DATABASE_URL!,
-  });
-
-export const auth =
-  globalForAuth.authInstance ??
-  betterAuth({
+function createAuth() {
+  return betterAuth({
     database: authPool,
         emailAndPassword: {
         enabled: true,
@@ -66,9 +54,24 @@ export const auth =
     ]
 
   });
+}
+
+const globalForAuth = globalThis as unknown as {
+  authPool?: Pool;
+  authInstance?: ReturnType<typeof createAuth>;
+};
+
+const authPool =
+  globalForAuth.authPool ??
+  new Pool({
+    connectionString: process.env.AUTH_DATABASE_URL!,
+  });
+
+export const auth =
+  globalForAuth.authInstance ??
+  createAuth();
 
 if (process.env.NODE_ENV !== "production") {
   globalForAuth.authPool = authPool;
   globalForAuth.authInstance = auth;
 }
-
