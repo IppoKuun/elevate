@@ -52,7 +52,7 @@ model Cours {
   category            CoursCategory?
   createdAt           DateTime       @default(now())
   updatedAt           DateTime       @updatedAt
-  isPaid              Boolean?
+  isPaid              Boolean        @default(false)
   stripeProductId     String?        @unique
   stripePriceId       String?        @unique
   purchases           CoursePurchase[]

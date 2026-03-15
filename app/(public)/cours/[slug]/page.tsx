@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { prisma } from "@/lib/db/prisma";
 import getSession from "@/lib/session";
 import { notFound, redirect } from "next/navigation";
@@ -6,10 +7,76 @@ import { Lock } from "lucide-react";
 import ReactMarkdown from 'react-markdown';
 import checkoutSession from "@/app/actions/action_stripe_chekout";
 import { CheckoutSubmitButton } from "../_components/CheckoutSubmitButton";
+import { getAppUrl } from "@/lib/app-url";
 
 interface PageProps {
   params: {
     slug: string;
+  };
+}
+
+function toMetaDescription(description?: string | null, content?: string | null) {
+  const source = description?.trim() || content?.replace(/[#*_`>\-\n]+/g, " ").trim() || "";
+
+  if (!source) {
+    return "Consultez la fiche detail du cours sur ELEVATE et debloquez son contenu premium.";
+  }
+
+  return source.length > 160 ? `${source.slice(0, 157).trim()}...` : source;
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const appUrl = getAppUrl();
+
+  const course = await prisma.cours.findUnique({
+    where: { slug },
+    select: {
+      title: true,
+      slug: true,
+      description: true,
+      content: true,
+      thumbnailUrl: true,
+      isPaid: true,
+    },
+  });
+
+  if (!course) {
+    return {
+      title: "Cours introuvable",
+      description: "Ce cours n'existe pas ou n'est plus disponible sur ELEVATE.",
+    };
+  }
+
+  const description = toMetaDescription(course.description, course.content);
+  const ogImage = course.thumbnailUrl || `${appUrl}/logoWbg.png`;
+
+  return {
+    title: course.title,
+    description,
+    alternates: {
+      canonical: `${appUrl}/cours/${course.slug}`,
+    },
+    openGraph: {
+      title: `${course.title} | ELEVATE`,
+      description,
+      url: `${appUrl}/cours/${course.slug}`,
+      type: "article",
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: course.title,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${course.title} | ELEVATE`,
+      description,
+      images: [ogImage],
+    },
   };
 }
 

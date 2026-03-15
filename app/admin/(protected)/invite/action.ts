@@ -8,7 +8,7 @@ import { prisma } from "@/lib/db/prisma";
 import createLogs from "@/lib/newLogs";
 
 const schema = z.object ({
-    email : z.string(),
+    email : z.email(),
     role : z.enum(["ADMIN", "VIEWER"])
 });
 

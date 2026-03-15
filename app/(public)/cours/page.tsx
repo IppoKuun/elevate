@@ -1,15 +1,59 @@
+import type { Metadata } from "next";
 import { prisma } from "@/lib/db/prisma";
 import { Prisma } from "@prisma/client";
 import { CoursCard } from "./_components/CoursCard";
 import { CoursFilter } from "./_components/CoursFilter";
 import getSession from "@/lib/session";
 import { Suspense } from "react";
+import { getAppUrl } from "@/lib/app-url";
 
 interface PageProps {
   searchParams: {
     q?: string;
     type?: string;
     sort?: string;
+  };
+}
+
+export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
+  const { q: query, type } = await searchParams;
+  const appUrl = getAppUrl();
+
+  const titleSuffix = query ? ` - recherche "${query}"` : "";
+  const typeLabel =
+    type === "paid"
+      ? "Decouvrez les cours premium disponibles a l'achat."
+      : type === "free"
+        ? "Explorez les cours gratuits disponibles immediatement."
+        : "Explorez le catalogue de cours et debloquez les contenus premium.";
+
+  const description = `${typeLabel}${query ? ` Resultats pour ${query}.` : ""}`;
+
+  return {
+    title: `Cours${titleSuffix}`,
+    description,
+    alternates: {
+      canonical: `${appUrl}/cours`,
+    },
+    openGraph: {
+      title: `Cours${titleSuffix} | ELEVATE`,
+      description,
+      url: `${appUrl}/cours`,
+      images: [
+        {
+          url: `${appUrl}/logoWbg.png`,
+          width: 1200,
+          height: 630,
+          alt: "Catalogue de cours ELEVATE",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `Cours${titleSuffix} | ELEVATE`,
+      description,
+      images: [`${appUrl}/logoWbg.png`],
+    },
   };
 }
 
