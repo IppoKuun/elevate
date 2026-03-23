@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useLinkStatus } from "next/link";
 import { usePathname } from "next/navigation";
 import { Book, LayoutDashboard, Logs, UserPlus } from "lucide-react";
 
@@ -16,8 +17,22 @@ function isActivePath(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
+function AdminLinkHint() {
+  const { pending } = useLinkStatus();
+
+  return (
+    <span
+      aria-hidden
+      className={[
+        "ml-auto h-2 w-2 rounded-full bg-current transition-all duration-200",
+        pending ? "opacity-100 animate-pulse" : "opacity-0",
+      ].join(" ")}
+    />
+  );
+}
+
 export default function AdminNav() {
-  const pathname = usePathname();
+  const pathname = usePathname()
 
   return (
     <nav className="mt-20 w-full space-y-4 p-4">
@@ -29,6 +44,7 @@ export default function AdminNav() {
           <Link
             key={link.name}
             href={link.href}
+            prefetch={false}
             className={[
               "group flex w-full items-center gap-2 rounded-xl px-3 py-2 transition-colors",
               active
@@ -38,6 +54,7 @@ export default function AdminNav() {
           >
             <Icon className={active ? "text-white" : ""} />
             <span>{link.name}</span>
+            <AdminLinkHint />
           </Link>
         );
       })}
