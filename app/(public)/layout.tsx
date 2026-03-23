@@ -34,7 +34,7 @@ export default async function PublicLayout({
       <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur md:top-11">
         <div className="mx-auto flex w-full max-w-7xl flex-col gap-3 px-4 py-3 md:h-16 md:flex-row md:items-center md:justify-between md:gap-6 md:px-8 md:py-0">
           <div className="flex items-center justify-between gap-4">
-            <Link href="/" className="inline-flex items-center gap-2">
+            <Link href="/cours" className="inline-flex items-center gap-2">
               <Image src="/logo.png" alt="Elevate" width={30} height={30} className="rounded-md" />
               <span className="text-sm font-semibold tracking-wide text-slate-900">ELEVATE</span>
             </Link>
