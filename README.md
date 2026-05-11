@@ -260,13 +260,5 @@ Exemples :
 
 ## IA Intégration
 
-### Les fonctionnalitées suivantes ont été faitent avec l'IA:
+### L’IA a été utilisée comme support de cadrage, d’implémentation initiale et de revue sur certaines intégrations complexes ou répétitives, avec validation manuelle, adaptation au contexte du projet et contrôle final.
 
-- Les Layouts
-- Toute la page cours et ses composants
-- La moitité du Webhook Stripe
-- La page admin Dashboard
-- Les pages react email starter
-- Les pages Legals
-- 404
-- La majorité du Taiwlind a été créer par moi mais poli/affiner par l'IA
