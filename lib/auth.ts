@@ -2,8 +2,8 @@ import { betterAuth } from "better-auth";
 import { nextCookies } from "better-auth/next-js";
 import { Pool } from "pg";
 import { resend } from "./resend";
-import { i18n } from "@better-auth/i18n";
-import { authTranslations } from "./auth-i18n";
+  import { i18n } from "@better-auth/i18n";
+  import { authTranslations } from "./auth-i18n";
 
 const globalForAuth = globalThis as typeof globalThis & {
   authPool?: Pool;
